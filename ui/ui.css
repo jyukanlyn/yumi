@@ -1,0 +1,123 @@
+:root {
+  --dialogue-height: 180px;
+}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  font-family: "Microsoft JhengHei", sans-serif;
+  background: black;
+}
+
+#game-screen {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background:
+    linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.75)),
+    url("../assets/bg/room.png") center / cover no-repeat;
+  cursor: pointer;
+}
+
+/* ===== 角色 ===== */
+#avatar-container {
+  position: absolute;
+  bottom: calc(var(--dialogue-height) + 20px);
+  width: 100%;
+  height: 60vh;
+  pointer-events: none;
+}
+
+.avatar {
+  position: absolute;
+  bottom: 0;
+  max-height: 35vh;
+  opacity: 0;
+  transition: opacity .6s ease, filter .4s ease;
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.avatar.left { left: 40px; }
+.avatar.right { right: 40px; }
+
+.avatar.active {
+  opacity: 1;
+  filter: brightness(1);
+}
+
+.avatar.inactive {
+  opacity: .45;
+  filter: brightness(.75);
+}
+
+/* 呼吸動畫 */
+@keyframes breathe {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+/* ===== 對話框 ===== */
+#dialogue-box {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 900px;
+  height: var(--dialogue-height);
+  background: rgba(0,0,0,.85);
+  border-radius: 10px;
+  padding: 20px;
+  box-sizing: border-box;
+  color: white;
+}
+
+#name-plate {
+  position: absolute;
+  top: -28px;
+  left: 20px;
+  background: #ffcc00;
+  color: black;
+  padding: 4px 16px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+#dialogue-text {
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+#chapter-btn {
+  position: absolute;
+  bottom: 12px;
+  right: 20px;
+  background: rgba(255,255,255,.15);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#chapter-menu {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.85);
+  color: white;
+  padding: 40px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.chapter-item {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,.2);
+  cursor: pointer;
+}
+
+.chapter-item:hover {
+  color: #ffcc00;
+}
