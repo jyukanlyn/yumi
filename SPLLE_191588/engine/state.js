@@ -16,11 +16,7 @@ export const backgrounds = {
   // 格式 -> 場景ID: "圖片相對路徑"
   
   // 您的範例
-  room: "assets/bg/bedroom.png",
+  room: "assets/bg/room.png",
   
-  // 擴充範例 (請依照您實際的 assets 資料夾內容修改，如果沒有這些圖，請刪除或換成有的圖)
-  school: "assets/bg/school_gate.jpg",
-  classroom: "assets/bg/classroom_day.jpg",
-  park: "assets/bg/park_sunset.png",
-  black: "assets/bg/black.png" // 全黑背景，適合回憶或轉場用
+
 };
