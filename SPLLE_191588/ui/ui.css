@@ -2,14 +2,14 @@
    🎨 主題變數 (優雅香檳金風格)
    ============================================================ */
 :root {
-    --champagne-gold: #c5a059;         /* 實體金色，增加文字對比度 */
-    --glass-bg: rgba(255, 255, 255, 0.75); /* 提升白底濃度，確保黑色文字清晰 */
+    --champagne-gold: #c5a059;
+    --glass-bg: rgba(255, 255, 255, 0.85); /* 稍微提高不透明度，讓黑字更好讀 */
     --glass-border: rgba(255, 255, 255, 0.5);
-    --text-main: #1a1a1a;              /* 純炭黑，適合長時間閱讀 */
+    --text-main: #1a1a1a;
     --text-sub: #5c554e;
     
-    --dialogue-height: 180px;
-    --dialogue-bottom: 40px;           /* 稍微上移，避免太貼近邊緣 */
+    --dialogue-height: 180px; /* 固定高度 */
+    --dialogue-bottom: 40px;
 }
 
 /* ============================================================
@@ -29,7 +29,6 @@ html, body {
     position: relative;
     width: 100vw;
     height: 100vh;
-    background-color: #eee; /* 底層緩衝色 */
     background-size: cover;
     background-position: center;
 }
@@ -49,25 +48,18 @@ html, body {
 .avatar {
     position: absolute;
     bottom: 0;
-    max-height: 50%;
-    transition: opacity 0.6s ease, transform 0.6s ease, filter 0.4s ease;
+    max-height: 100%;
+    transition: opacity 0.6s ease, filter 0.4s ease;
 }
 
 .avatar.left { left: 8%; }
 .avatar.right { right: 8%; }
 
-.avatar.active {
-    opacity: 1;
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
-}
-
-.avatar.inactive {
-    opacity: 0.5;
-    filter: grayscale(30%) brightness(1.1);
-}
+.avatar.active { opacity: 1; }
+.avatar.inactive { opacity: 0.5; filter: grayscale(30%); }
 
 /* ============================================================
-   💬 對話框 (磨砂玻璃優化版)
+   💬 對話框 (固定大小版)
    ============================================================ */
 #dialogue-box {
     position: absolute;
@@ -77,9 +69,8 @@ html, body {
     width: 90%;
     max-width: 960px;
     
-    /* 修正：使用 min-height 配合 height: auto 防止文字溢出 */
-    height: auto;
-    min-height: var(--dialogue-height);
+    /* 核心修改：固定高度，不隨文字縮放 */
+    height: var(--dialogue-height); 
 
     background: var(--glass-bg);
     backdrop-filter: blur(16px) saturate(120%);
@@ -89,46 +80,49 @@ html, body {
     border: 1px solid var(--glass-border);
     box-shadow: 0 12px 40px rgba(0,0,0,0.08);
 
-    padding: 30px 40px;
+    padding: 25px 40px; /* 稍微縮小內距，爭取文字空間 */
     box-sizing: border-box;
     z-index: 100;
+    overflow: hidden; /* 防止內容溢出框外 */
 }
 
-/* 返回按鈕 (修正位置與視覺) */
+/* 返回按鈕 */
 #back-btn {
     position: absolute;
     top: 20px;
-    left: 15px; /* 移到左側符合一般直覺 */
+    left: 15px;
     width: 28px;
-    height: auto;
     opacity: 0.4;
     cursor: pointer;
-    transition: opacity 0.3s ease, transform 0.2s ease;
+    transition: opacity 0.3s ease;
 }
 
-#back-btn:hover {
-    opacity: 1;
-    transform: scale(1.1);
-}
+#back-btn:hover { opacity: 1; }
 
 /* 名字欄 */
 #name-plate {
     font-size: 1.15rem;
     font-weight: 700;
     color: var(--champagne-gold);
-    letter-spacing: 0.1em;
-    margin-bottom: 10px;
-    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+    margin-bottom: 5px;
 }
 
-/* 對話文字 (黑色) */
+/* 對話文字 (增加內部滾動) */
 #dialogue-text {
     font-size: 1.15rem;
-    line-height: 1.8;
+    line-height: 1.7; /* 稍微調緊行高，讓固定框能塞更多字 */
     color: var(--text-main);
     white-space: pre-wrap;
-    padding-left: 10px;
+    
+    /* 核心修改：如果文字過長，允許在框內捲動 */
+    max-height: calc(var(--dialogue-height) - 80px); 
+    overflow-y: auto;
+    padding-right: 10px;
 }
+
+/* 隱藏捲軸美化 (可選) */
+#dialogue-text::-webkit-scrollbar { width: 4px; }
+#dialogue-text::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
 
 /* ============================================================
    📜 UI 控制按鈕 (LOG/章節)
@@ -145,55 +139,36 @@ html, body {
     font-weight: 600;
     cursor: pointer;
     z-index: 200;
-    transition: all 0.3s ease;
 }
 
 #log-btn { left: 20px; }
 #chapter-btn { right: 20px; }
 
-#log-btn:hover, #chapter-btn:hover {
-    background: white;
-    color: var(--champagne-gold);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
 /* ============================================================
-   🪟 視窗組件 (LOG / 選單)
+   🪟 視窗組件邏輯修正
    ============================================================ */
-
-/* 核心修正：確保 hidden 屬性能蓋過 display: flex */
 #log-window:not([hidden]), 
 #chapter-menu:not([hidden]) {
     display: flex;
 }
 
 #log-window {
-    display: none; /* 預設隱藏 */
+    display: none;
     position: absolute;
     inset: 8%;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(20px);
     border-radius: 30px;
-    border: 1px solid var(--glass-border);
     box-shadow: 0 20px 60px rgba(0,0,0,0.15);
     flex-direction: column;
     z-index: 1000;
-    overflow: hidden;
 }
 
 .log-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
     padding: 20px 30px;
-    background: #f9f8f6;
     border-bottom: 1px solid #eee;
-}
-
-.log-header h2 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: var(--champagne-gold);
 }
 
 #log-content {
@@ -201,7 +176,6 @@ html, body {
     padding: 30px;
     overflow-y: auto;
     color: var(--text-main);
-    line-height: 2;
 }
 
 #close-log-btn {
@@ -213,24 +187,6 @@ html, body {
     cursor: pointer;
 }
 
-/* 章節選單樣式優化 */
-#chapter-menu {
-    display: none; /* 預設隱藏 */
-    position: absolute;
-    right: 20px;
-    top: 75px;
-    min-width: 200px;
-    background: white;
-    border-radius: 16px;
-    padding: 15px;
-    border: 1px solid #eee;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    z-index: 500;
-}
-
-/* ============================================================
-   🛠 通用工具
-   ============================================================ */
 [hidden] {
     display: none !important;
 }
