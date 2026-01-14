@@ -87,17 +87,34 @@ html, body {
 }
 
 /* 返回按鈕 */
+/* 針對返回按鈕的強制修正 */
 #back-btn {
     position: absolute;
-    top: 20px;
-    left: 15px;
-    width: 28px;
-    opacity: 0.4;
+    /* 調整位置，確保不在 padding 之外 */
+    top: 15px;
+    left: 15px; 
+    
+    width: 24px;   /* 強制設定寬度 */
+    height: 24px;  /* 強制設定高度 */
+    
+    z-index: 999;  /* 確保層級最高，不被文字或框體遮住 */
     cursor: pointer;
-    transition: opacity 0.3s ease;
+    display: block !important; /* 確保沒有被隱藏 */
+    
+    /* 如果圖片本身是白色的，在明亮主題下會看不見，可以加上濾鏡變黑 */
+    filter: brightness(0) opacity(0.6); 
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-#back-btn:hover { opacity: 1; }
+#back-btn:hover {
+    filter: brightness(0) opacity(1);
+    transform: scale(1.1);
+}
+
+/* 為了避開返回鍵，對話框內部的文字需要留出左側空間 */
+#dialogue-text {
+    padding-left: 45px !important; 
+}
 
 /* 名字欄 */
 #name-plate {
