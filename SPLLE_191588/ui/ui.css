@@ -1,248 +1,27 @@
-/* ============================================================
-   🎨 主題變數 (優雅香檳金風格)
-   ============================================================ */
-:root {
-    --champagne-gold: #c5a059;
-    --glass-bg: rgba(255, 255, 255, 0.85); 
-    --glass-border: rgba(255, 255, 255, 0.5);
-    --text-main: #1a1a1a;
-    --text-sub: #5c554e;
-    
-    --dialogue-height: 180px; 
-    --dialogue-bottom: 40px;
-}
+function showLog() {
+    if (!ui.logContent) return;
+    ui.logContent.innerHTML = ""; 
 
-/* ============================================================
-   🖥 基礎重設
-   ============================================================ */
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    font-family: "PingFang TC", "Microsoft JhengHei", "Noto Serif TC", serif;
-    background: #fdfcfb;
-    overflow: hidden;
-}
+    state.history.forEach(log => {
+        if (!log.text) return;
+        const entry = document.createElement("div");
+        entry.className = "log-entry";
+        
+        // 判斷是否顯示名字 (排除旁白)
+        const nameHtml = (log.speaker && log.speaker !== "Narrator") 
+            ? `<span class="log-name">${log.speaker}</span>` 
+            : "";
+        
+        entry.innerHTML = `
+            ${nameHtml}
+            <span class="log-text">${log.text}</span>
+        `;
 
-#game-screen {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    background-size: cover;
-    background-position: center;
-}
+        ui.logContent.appendChild(entry);
+    });
 
-/* ===============================
-   👤 角色立繪 (精準貼齊對話框)
-   =============================== */
-#avatar-container {
-    position: absolute;
-    bottom: calc(var(--dialogue-height) + var(--dialogue-bottom));
-    width: 100%;
-    height: 50%; 
-    pointer-events: none;
-    z-index: 5;
-    overflow: hidden; 
-}
-
-.avatar {
-    position: absolute;
-    bottom: -5px; 
-    max-height: 100%;
-    width: auto;
-    transition: opacity 0.6s ease, transform 0.4s ease, filter 0.4s ease;
-    transform-origin: bottom center;
-}
-
-.avatar.left { left: 15%; }
-.avatar.right { right: 15%; }
-
-@keyframes breathe {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.015); }
-    100% { transform: scale(1); }
-}
-
-.avatar.active {
-    opacity: 1;
-    animation: breathe 5s ease-in-out infinite;
-    filter: drop-shadow(0 -5px 15px rgba(0,0,0,0.05));
-}
-
-.avatar.inactive {
-    opacity: 0.5;
-    filter: grayscale(40%);
-}
-
-/* ============================================================
-   💬 對話框 (固定大小版)
-   ============================================================ */
-#dialogue-box {
-    position: absolute;
-    left: 50%;
-    bottom: var(--dialogue-bottom);
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 960px;
-    height: var(--dialogue-height); 
-    background: var(--glass-bg);
-    backdrop-filter: blur(16px) saturate(140%);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    border-radius: 24px;
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
-    padding: 25px 40px;
-    box-sizing: border-box;
-    z-index: 100;
-    overflow: hidden;
-}
-
-#back-btn {
-    position: absolute;
-    top: 120px; 
-    left: 15px; 
-    width: 24px;
-    height: 24px;
-    z-index: 999;
-    cursor: pointer;
-    filter: brightness(0) opacity(0.4); 
-    transition: all 0.2s ease;
-}
-
-#back-btn:hover {
-    filter: brightness(0) opacity(1);
-    transform: scale(1.1);
-}
-
-#name-plate {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--champagne-gold);
-    margin-bottom: 5px;
-    padding-left: 10px;
-}
-
-#dialogue-text {
-    font-size: 1.15rem;
-    line-height: 1.7;
-    color: var(--text-main);
-    white-space: pre-wrap;
-    padding-left: 15px; 
-    max-height: calc(var(--dialogue-height) - 80px); 
-    overflow-y: auto;
-}
-
-/* ============================================================
-   📜 LOG 視窗 (修正版：背景與面板分離)
-   ============================================================ */
-
-/* 外部半透明背景：負責偵測「外部點擊」 */
-#log-window {
-    display: none; 
-    position: fixed; 
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4); 
-    backdrop-filter: blur(4px);
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
-}
-
-#log-window:not([hidden]) {
-    display: flex;
-}
-
-/* 內部面板：真正的內容容器 */
-#log-window .log-panel {
-    width: 80%;
-    height: 75%;
-    max-width: 900px;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(25px);
-    border-radius: 30px;
-    border: 1px solid var(--glass-border);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    animation: fadeInWindow 0.4s ease-out;
-}
-
-.log-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px 40px;
-    background: #f9f8f6;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.log-header h2 {
-    margin: 0;
-    font-size: 1.3rem;
-    color: var(--champagne-gold);
-    letter-spacing: 0.1em;
-}
-
-#log-content {
-    flex: 1;
-    padding: 30px 40px;
-    overflow-y: auto;
-    color: var(--text-main);
-    line-height: 2.2;
-    animation: fadeInUp 0.6s ease-out;
-}
-
-/* 捲軸美化 */
-#log-content::-webkit-scrollbar { width: 6px; }
-#log-content::-webkit-scrollbar-track { background: transparent; }
-#log-content::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.05); border-radius: 10px; }
-#log-content::-webkit-scrollbar-thumb:hover { background: var(--champagne-gold); }
-
-#close-log-btn {
-    background: var(--text-sub);
-    color: white;
-    border: none;
-    padding: 8px 20px;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-#close-log-btn:hover {
-    background: var(--champagne-gold);
-}
-
-/* ===============================
-   🛠 按鈕與動畫定義
-   =============================== */
-#log-btn, #chapter-btn {
-    position: absolute;
-    top: 20px;
-    padding: 8px 20px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    border-radius: 50px;
-    color: var(--text-sub);
-    font-weight: 600;
-    cursor: pointer;
-    z-index: 200;
-}
-#log-btn { left: 20px; }
-#chapter-btn { right: 20px; }
-
-@keyframes fadeInWindow {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-[hidden] {
-    display: none !important;
+    ui.logWindow.hidden = false;
+    setTimeout(() => {
+        ui.logContent.scrollTop = ui.logContent.scrollHeight;
+    }, 50);
 }

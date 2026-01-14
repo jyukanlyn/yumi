@@ -216,36 +216,36 @@ function render(step) {
 
     updateCharacters(step);
 }
-
 function showLog() {
     if (!ui.logContent) return;
     ui.logContent.innerHTML = ""; 
 
-    // 顯示所有歷史紀錄
     state.history.forEach(log => {
         if (!log.text) return;
-        const div = document.createElement("div");
-        div.className = "log-entry";
         
-        if (log.speaker && log.speaker !== "Narrator") {
-            const nameSpan = document.createElement("span");
-            nameSpan.className = "log-name";
-            nameSpan.textContent = log.speaker + "：";
-            div.appendChild(nameSpan);
+        const entry = document.createElement("div");
+        entry.className = "log-entry";
+        
+        // 判斷是否為旁白 (Narrator)
+        const isNarrator = !log.speaker || log.speaker === "Narrator";
+        
+        let htmlContent = "";
+        if (!isNarrator) {
+            htmlContent += `<span class="log-name">${log.speaker}</span>`;
         }
-
-        const textSpan = document.createElement("span");
-        textSpan.className = "log-text";
-        textSpan.textContent = log.text;
-        div.appendChild(textSpan);
-
-        ui.logContent.appendChild(div);
+        
+        htmlContent += `<span class="log-text">${log.text}</span>`;
+        
+        entry.innerHTML = htmlContent;
+        ui.logContent.appendChild(entry);
     });
 
     ui.logWindow.hidden = false;
+    
+    // 確保捲動到最底部
     setTimeout(() => {
         ui.logContent.scrollTop = ui.logContent.scrollHeight;
-    }, 10);
+    }, 50);
 }
 
 function changeBackground(bgID) {
@@ -326,6 +326,22 @@ function jumpToChapter(index) {
     state.backStack = []; // 跳章節時清空返回堆疊，避免邏輯混亂
     ui.chapterMenu.hidden = true;
     nextStep();
+}
+// 範例：將對話加入 LOG 視窗
+function addLogEntry(name, text) {
+    const logContent = document.getElementById('log-content');
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    
+    // 判斷是否有名字（旁白可能沒有名字）
+    const nameHtml = name ? `<span class="log-name">${name}</span>` : '';
+    
+    entry.innerHTML = `
+        ${nameHtml}
+        <span class="log-text">${text}</span>
+    `;
+    
+    logContent.appendChild(entry);
 }
 
 console.log("引擎啟動！");
