@@ -117,7 +117,6 @@ html, body {
     color: var(--text-main);
     white-space: pre-wrap;
     max-height: calc(var(--dialogue-height) - 80px); 
-    overflow-y: auto;
 }
 
 /* 對話框內捲軸美化 */
