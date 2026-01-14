@@ -1,55 +1,64 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<title>熱体艶夜</title>
-<link rel="stylesheet" href="ui/ui.css">
-<link rel="icon" type="image/png" href="icon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>くちくちにしましょうね</title>
+    <link rel="stylesheet" href="ui/ui.css">
+    <link rel="icon" type="image/png" href="icon.png">
+    <style>
+        /* 額外補充：確保對話文字能正確顯示換行 */
+        #dialogue-text {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        /* 增加鼠標手勢 */
+        #back-btn, #log-btn, #chapter-btn, #close-log-btn {
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
 
 <div id="game-screen">
 
-  <button id="log-btn">LOG</button>
+    <button id="log-btn">LOG</button>
 
-  <div id="log-window" hidden>
-    <div class="log-header">
-      <h2>LOG</h2>
-      <button id="close-log-btn">關閉</button>
+    <div id="log-window" hidden>
+        <div class="log-header">
+            <h2>LOG</h2>
+            <button id="close-log-btn">關閉</button>
+        </div>
+        <div id="log-content">
+            </div>
     </div>
-    <div id="log-content">
-      </div>
-  </div>
-  
-  <div id="avatar-container">
-    <img id="avatar-left" class="avatar left">
-    <img id="avatar-right" class="avatar right">
-  </div>
+    
+    <div id="avatar-container">
+        <img id="avatar-left" class="avatar left" draggable="false">
+        <img id="avatar-right" class="avatar right" draggable="false">
+    </div>
 
-  <div id="dialogue-box">
-    <img id="back-btn" src="assets/ui/back.png" alt="返回上一頁">
-  <div id="name-plate"></div>
-  <div id="dialogue-text"></div>
-  </div>
+    <div id="dialogue-box">
+        <img id="back-btn" src="assets/ui/back.png" alt="返回上一頁" draggable="false">
+        <div id="name-plate"></div>
+        <div id="dialogue-text"></div>
+    </div>
 
-  <button id="chapter-btn">章節</button>
+    <button id="chapter-btn">章節</button>
 
-  <div id="chapter-menu" hidden></div>
+    <div id="chapter-menu" hidden></div>
 
 </div>
 
 <script>
-window.onerror = function(message, source, lineno, colno, error) {
-  alert("💀 發生錯誤：\n" + message + "\n\n檔案：" + source + "\n行數：" + lineno);
-};
+    window.onerror = function(message, source, lineno, colno, error) {
+        console.error("Game Error:", error);
+        alert("💀 發生錯誤：\n" + message + "\n\n檔案：" + source + "\n行數：" + lineno);
+    };
 </script>
 
-<script type="module">
-  import("./engine/engine.js").catch(e => {
-    alert("❌ 模組載入失敗！\n通常是 engine.js, state.js 或 characters.js 裡面寫錯字了。\n\n詳細錯誤：" + e);
-  });
-</script>
+<script type="module" src="./engine/engine.js"></script>
 
 </body>
 </html>
