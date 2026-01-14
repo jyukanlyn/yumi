@@ -1,12 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>くちくちにしましょうね</title>
+<title>熱体艶夜</title>
 <link rel="stylesheet" href="ui/ui.css">
-//<link rel="icon" type="image/png" href="icon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="icon.png">
 </head>
 
 <body>
@@ -20,16 +18,17 @@
       <h2>LOG</h2>
       <button id="close-log-btn">關閉</button>
     </div>
-    <div id="log-content"></div>
+    <div id="log-content">
+      </div>
   </div>
   
   <div id="avatar-container">
-    <img id="avatar-left" class="avatar left" draggable="false">
-    <img id="avatar-right" class="avatar right" draggable="false">
+    <img id="avatar-left" class="avatar left">
+    <img id="avatar-right" class="avatar right">
   </div>
 
   <div id="dialogue-box">
-    <img id="back-btn" src="assets/ui/back.png" alt="返回上一頁" draggable="false">
+    <img id="back-btn" src="assets/ui/back.png" alt="返回上一頁">
     
     <div id="name-plate"></div>
     
@@ -49,8 +48,9 @@ window.onerror = function(message, source, lineno, colno, error) {
 </script>
 
 <script type="module">
+  // 嘗試載入引擎，如果路徑錯誤會報錯
   import("./engine/engine.js").catch(e => {
-    alert("❌ 模組載入失敗！\n請檢查 engine.js 路徑。\n\n" + e);
+    alert("❌ 模組載入失敗！\n請檢查 engine.js, state.js 或 characters.js 的路徑或語法。\n\n詳細錯誤：" + e);
   });
 </script>
 
