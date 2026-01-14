@@ -106,4 +106,211 @@
 
         .character {
             flex: 1;
-            min-width: 2
+            min-width: 250px;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 4px 15px rgba(224, 132, 155, 0.3);
+            margin-bottom: 15px;
+            transition: transform 0.5s ease;
+        }
+
+        .avatar:hover {
+            transform: rotate(5deg) scale(1.05);
+        }
+
+        .char-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--deep-pink);
+            margin-bottom: 5px;
+        }
+
+        .char-desc {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* --- 連接符號 (&) --- */
+        .ampersand {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            color: var(--primary-pink);
+            opacity: 0.8;
+        }
+
+        /* --- 故事/語錄區 --- */
+        .quote-box {
+            font-size: 1.1rem;
+            line-height: 2;
+            border-left: 4px solid var(--primary-pink);
+            padding-left: 20px;
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        /* --- 相冊/鏈接區 --- */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .gallery-item {
+            height: 200px;
+            background-color: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-pink);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* 佔位圖樣式，實際使用請換成 <img> */
+        .gallery-item::before {
+            content: "Moment";
+            z-index: 2;
+        }
+        
+        .gallery-item:hover {
+            background-color: var(--primary-pink);
+            color: white;
+        }
+
+        /* --- 動畫 Keyframes --- */
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* --- Footer --- */
+        footer {
+            margin-top: 50px;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* --- 手機適配 --- */
+        @media (max-width: 600px) {
+            .hero-title { font-size: 2.5rem; }
+            .cp-profile { flex-direction: column; }
+            .ampersand { transform: rotate(90deg); margin: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="falling-container"></div>
+
+    <div class="container">
+        <header class="glass-card">
+            <h1 class="hero-title">Character A & Character B</h1>
+            <p class="hero-subtitle">"In the cherry blossom rain, I found you."</p>
+            <div style="font-size: 20px; color: var(--deep-pink);">❤︎</div>
+        </header>
+
+        <section class="glass-card">
+            <div class="cp-profile">
+                <div class="character">
+                    <img src="https://via.placeholder.com/150/ffcfe0/ffffff?text=A" alt="Character A" class="avatar">
+                    <div class="char-name">攻方名字</div>
+                    <div class="char-desc">
+                        性格關鍵詞 / 屬性<br>
+                        這裡可以寫一段簡短的角色介紹，<br>或者是他對另一半的看法。
+                    </div>
+                </div>
+
+                <div class="ampersand">&times;</div>
+
+                <div class="character">
+                    <img src="https://via.placeholder.com/150/ffcfe0/ffffff?text=B" alt="Character B" class="avatar">
+                    <div class="char-name">受方名字</div>
+                    <div class="char-desc">
+                        性格關鍵詞 / 屬性<br>
+                        這裡可以寫一段簡短的角色介紹，<br>或者是他對另一半的看法。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card" style="text-align: left;">
+            <h2 style="color: var(--text-accent); text-align: center; margin-bottom: 20px;">Our Story</h2>
+            <div class="quote-box">
+                <p>這裡是放置 CP 金句、原作名台詞或者是同人短文摘要的地方。</p>
+                <p>支持多行文字。背景的毛玻璃效果會讓文字在粉色背景上依然清晰易讀。你可以使用 <strong>加粗</strong> 來強調重點。</p>
+            </div>
+        </section>
+
+        <section class="glass-card">
+            <h2 style="color: var(--text-accent); margin-bottom: 20px;">Gallery & Logs</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">Illustrations</div>
+                <div class="gallery-item">Novels</div>
+                <div class="gallery-item">Chat Logs</div>
+            </div>
+        </section>
+
+        <footer>
+            Created with Love | Designed for [CP Name]
+        </footer>
+    </div>
+
+    <script>
+        function createFallingElements() {
+            const container = document.getElementById('falling-container');
+            const count = 30; // 屏幕上同時存在的數量
+
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const el = document.createElement('div');
+                    el.classList.add('heart');
+                    
+                    // 隨機大小
+                    const size = Math.random() * 10 + 5 + 'px';
+                    el.style.width = size;
+                    el.style.height = size;
+                    
+                    // 隨機位置
+                    el.style.left = Math.random() * 100 + 'vw';
+                    
+                    // 隨機動畫時間
+                    el.style.animationDuration = Math.random() * 5 + 5 + 's';
+                    
+                    // 隨機延遲
+                    el.style.animationDelay = Math.random() * 5 + 's';
+                    
+                    // 隨機顏色微調 (可選)
+                    el.style.backgroundColor = Math.random() > 0.5 ? '#ffb7c5' : '#ffd1dc';
+
+                    container.appendChild(el);
+
+                    // 動畫結束後重置位置，循環使用（簡單處理則讓CSS infinite循環）
+                    el.addEventListener('animationiteration', () => {
+                        el.style.left = Math.random() * 100 + 'vw';
+                    });
+
+                }, i * 300); // 錯開生成時間
+            }
+        }
+
+        // 頁面加載後啟動特效
+        window.onload = createFallingElements;
+    </script>
+</body>
+</html>
