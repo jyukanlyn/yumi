@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eternal Love - CP Showcase</title>
+    <title>水天一碧</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
     
     <style>
@@ -12,7 +12,9 @@
             --primary-pink: #ffb7c5;
             --deep-pink: #e0849b;
             --soft-white: rgba(255, 255, 255, 0.85);
-            --glass-bg: rgba(255, 255, 255, 0.4);
+            /* 靜態版背景色稍微加強一點漸變層次 */
+            --bg-gradient: linear-gradient(135deg, #fff0f3 0%, #ffe6eb 50%, #ffd1dc 100%); 
+            --glass-bg: rgba(255, 255, 255, 0.45); /*稍微增加不透明度*/
             --glass-border: rgba(255, 255, 255, 0.6);
             --text-main: #5e4b52;
             --text-accent: #d45d79;
@@ -22,39 +24,19 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            height: 100%;
+            min-height: 100vh; /* 確保背景填滿 */
             font-family: 'Noto Serif TC', serif;
-            background: linear-gradient(135deg, #fff0f3 0%, #ffe6eb 100%);
+            background: var(--bg-gradient);
+            background-attachment: fixed; /* 讓背景固定，滾動時更有質感 */
             color: var(--text-main);
             overflow-x: hidden;
-        }
-
-        /* --- 背景飄落動畫容器 --- */
-        #falling-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .heart {
-            position: absolute;
-            background-color: var(--primary-pink);
-            display: inline-block;
-            border-radius: 50%;
-            opacity: 0.6;
-            animation: fall linear infinite;
         }
 
         /* --- 主容器佈局 --- */
         .container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 60px 20px; /* 增加頂部留白 */
             text-align: center;
             position: relative;
             z-index: 1;
@@ -67,15 +49,16 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(255, 183, 197, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(255, 183, 197, 0.15);
             padding: 40px;
             margin-bottom: 40px;
-            transition: transform 0.3s ease;
+            /* 保留輕微的懸停上浮效果，讓頁面不至於死板 */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; 
         }
 
         .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px 0 rgba(255, 183, 197, 0.35);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px 0 rgba(255, 183, 197, 0.25);
         }
 
         /* --- 標題區域 --- */
@@ -117,11 +100,11 @@
             border: 4px solid white;
             box-shadow: 0 4px 15px rgba(224, 132, 155, 0.3);
             margin-bottom: 15px;
-            transition: transform 0.5s ease;
+            transition: transform 0.4s ease;
         }
 
         .avatar:hover {
-            transform: rotate(5deg) scale(1.05);
+            transform: scale(1.05); /* 僅保留輕微放大，移除旋轉 */
         }
 
         .char-name {
@@ -163,40 +146,24 @@
 
         .gallery-item {
             height: 200px;
-            background-color: white;
+            background-color: rgba(255, 255, 255, 0.7);
             border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--primary-pink);
+            color: var(--deep-pink);
             font-weight: bold;
+            font-family: 'Cinzel', serif;
             cursor: pointer;
             transition: all 0.3s;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        /* 佔位圖樣式，實際使用請換成 <img> */
-        .gallery-item::before {
-            content: "Moment";
-            z-index: 2;
+            border: 1px solid transparent;
         }
         
         .gallery-item:hover {
-            background-color: var(--primary-pink);
-            color: white;
-        }
-
-        /* --- 動畫 Keyframes --- */
-        @keyframes fall {
-            0% {
-                transform: translateY(-10vh) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(100vh) rotate(360deg);
-                opacity: 0;
-            }
+            background-color: white;
+            color: var(--text-accent);
+            border-color: var(--primary-pink);
+            box-shadow: 0 5px 15px rgba(255, 183, 197, 0.4);
         }
 
         /* --- Footer --- */
@@ -215,8 +182,6 @@
     </style>
 </head>
 <body>
-
-    <div id="falling-container"></div>
 
     <div class="container">
         <header class="glass-card">
@@ -253,7 +218,7 @@
             <h2 style="color: var(--text-accent); text-align: center; margin-bottom: 20px;">Our Story</h2>
             <div class="quote-box">
                 <p>這裡是放置 CP 金句、原作名台詞或者是同人短文摘要的地方。</p>
-                <p>支持多行文字。背景的毛玻璃效果會讓文字在粉色背景上依然清晰易讀。你可以使用 <strong>加粗</strong> 來強調重點。</p>
+                <p>已移除動態特效，頁面更加安靜、專注於文字展示。</p>
             </div>
         </section>
 
@@ -271,46 +236,5 @@
         </footer>
     </div>
 
-    <script>
-        function createFallingElements() {
-            const container = document.getElementById('falling-container');
-            const count = 30; // 屏幕上同時存在的數量
-
-            for (let i = 0; i < count; i++) {
-                setTimeout(() => {
-                    const el = document.createElement('div');
-                    el.classList.add('heart');
-                    
-                    // 隨機大小
-                    const size = Math.random() * 10 + 5 + 'px';
-                    el.style.width = size;
-                    el.style.height = size;
-                    
-                    // 隨機位置
-                    el.style.left = Math.random() * 100 + 'vw';
-                    
-                    // 隨機動畫時間
-                    el.style.animationDuration = Math.random() * 5 + 5 + 's';
-                    
-                    // 隨機延遲
-                    el.style.animationDelay = Math.random() * 5 + 's';
-                    
-                    // 隨機顏色微調 (可選)
-                    el.style.backgroundColor = Math.random() > 0.5 ? '#ffb7c5' : '#ffd1dc';
-
-                    container.appendChild(el);
-
-                    // 動畫結束後重置位置，循環使用（簡單處理則讓CSS infinite循環）
-                    el.addEventListener('animationiteration', () => {
-                        el.style.left = Math.random() * 100 + 'vw';
-                    });
-
-                }, i * 300); // 錯開生成時間
-            }
-        }
-
-        // 頁面加載後啟動特效
-        window.onload = createFallingElements;
-    </script>
 </body>
 </html>
