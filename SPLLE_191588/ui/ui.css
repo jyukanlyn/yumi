@@ -1,187 +1,255 @@
+/* ui/ui.css */
+
 :root {
-  --dialogue-height: 180px;
-
-  /* ===== 明亮優雅配色 ===== */
-  --bg-light: rgba(255, 255, 255, 0.94);
-  --bg-panel: rgba(255, 255, 255, 0.98);
-
-  --primary-color: #5B8EDB;   /* 柔和藍 */
-  --accent-color: #FFE27A;    /* 奶油黃 */
-
-  --text-main: #222222;       /* 柔黑 */
-  --text-sub: #666666;
+  /* 設為自動高度以適應文字，並設定最小高度 */
+  --dialogue-min-height: 160px;
+  --primary-gold: #D4AF37;   /* 優雅的金調 */
+  --accent-yellow: #FFD93D; /* 活潑的提示色 */
+  --bg-glass: rgba(255, 255, 255, 0.9);
+  --text-black: #1a1a1a;
 }
 
-/* ===== 全域 ===== */
 html, body {
   margin: 0;
   width: 100%;
   height: 100%;
   font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
-  background: #f3f4f6;
-  color: var(--text-main);
+  background: #fdfdfd; /* 淺奶油白背景 */
+  overflow: hidden;
 }
 
-/* ===== 遊戲畫面 ===== */
 #game-screen {
   position: relative;
   width: 100vw;
   height: 100vh;
-  background:
-    linear-gradient(
-      rgba(255,255,255,0.35),
-      rgba(255,255,255,0.55)
-    ),
-    url("../assets/bg/room.png") center / cover no-repeat;
+  background-image: url("../assets/bg/bedroom.png");
+  background-size: cover;
+  background-position: center;
   cursor: pointer;
+  z-index: 1; 
 }
 
-/* ===== 角色 ===== */
+/* --- 修改為明亮濾鏡 --- */
+#game-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* 由淺入深的白色漸層，保持畫面通透 */
+  background: linear-gradient(rgba(255,255,255,0.1), rgba(255,255,255,0.4));
+  pointer-events: none;
+  z-index: -1; 
+}
+
+/* ===== 特殊事件圖片 ===== */
+#event-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 65vw; 
+  max-height: 65vh;
+  z-index: 15;
+  border: 5px solid white; /* 像實體照片一樣的白邊 */
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+  border-radius: 4px;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translate(-50%, -45%) scale(0.9); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ===== 角色立繪調整 ===== */
 #avatar-container {
   position: absolute;
-  bottom: calc(var(--dialogue-height) + 24px);
+  bottom: calc(var(--dialogue-min-height) + 40px);
   width: 100%;
-  height: 60vh;
+  height: 65vh;
   pointer-events: none;
+  z-index: 5;
 }
 
 .avatar {
   position: absolute;
   bottom: 0;
-  max-height: 36vh;
+  max-height: 30vh; /* 稍微放大立繪比例 */
   opacity: 0;
   transition: opacity .6s ease, filter .4s ease, transform .4s ease;
-  animation: breathe 4.5s ease-in-out infinite;
+  animation: breathe 5s ease-in-out infinite;
 }
 
-.avatar.left { left: 48px; }
-.avatar.right { right: 48px; }
-
-.avatar.active {
-  opacity: 1;
-  filter:
-    drop-shadow(0 12px 28px rgba(0,0,0,0.12));
+.avatar.active { 
+  opacity: 1; 
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); /* 增加柔和陰影 */
 }
-
-.avatar.inactive {
-  opacity: 0.55;
-  filter: grayscale(25%) brightness(1.05);
+.avatar.inactive { 
+  opacity: .5; 
+  filter: brightness(1.1) grayscale(20%); /* 不再變黑，而是稍微褪色 */
 }
 
 @keyframes breathe {
   0% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+  50% { transform: translateY(-8px); }
   100% { transform: translateY(0); }
 }
 
-/* ===== 對話框 ===== */
+/* ===== 對話框：明亮磨砂玻璃風格 ===== */
 #dialogue-box {
   position: absolute;
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-
   width: 90%;
-  max-width: 900px;
-  height: var(--dialogue-height);
-
-  background: var(--bg-light);
-  backdrop-filter: blur(14px);
-
-  border: 1px solid rgba(255,255,255,0.7);
-  border-radius: 22px;
-
-  padding: 36px 46px;
+  max-width: 940px;
+  
+  /* 改為自適應高度，解決文字溢出問題 */
+  height: auto;
+  min-height: var(--dialogue-min-height);
+  
+  background: var(--bg-glass);
+  backdrop-filter: blur(15px); /* 磨砂玻璃特效 */
+  -webkit-backdrop-filter: blur(15px);
+  
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 24px; /* 更圓潤現代 */
+  padding: 0; /* padding 改由內部 text 支撐 */
+  
   box-sizing: border-box;
-
-  box-shadow:
-    0 16px 40px rgba(0,0,0,0.08);
-
-  color: var(--text-main);
+  color: var(--text-black);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  pointer-events: auto; 
 }
 
-/* ===== 名字牌 ===== */
+/* 名字框：膠囊設計 */
 #name-plate {
   position: absolute;
   top: -20px;
-  left: 42px;
-
-  background: linear-gradient(
-    135deg,
-    #FFE27A,
-    #FFD34D
-  );
-
-  color: #3a2f00;
-  padding: 7px 26px;
-
-  border-radius: 999px;
-  font-size: 1.05rem;
-  font-weight: 800;
-
-  box-shadow:
-    0 6px 16px rgba(255,217,90,0.35);
+  left: 40px;  
+  background: var(--accent-yellow);
+  color: #5a4a00; /* 深褐色配黃底 */
+  padding: 6px 24px;
+  border-radius: 50px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 15px rgba(255, 217, 61, 0.4);
+  z-index: 11;
 }
 
-/* ===== 對話文字 ===== */
+/* 對話內容：黑色文字優化 */
 #dialogue-text {
-  white-space: pre-wrap;
-  line-height: 1.85;
+  position: relative;
+  width: 100%; 
+  color: var(--text-black);
   font-size: 1.15rem;
   font-weight: 500;
-  letter-spacing: 0.03em;
-  color: var(--text-main);
-}
-
-/* ===== 章節按鈕 ===== */
-#chapter-btn {
-  position: absolute;
-  bottom: 16px;
-  right: 26px;
-
-  background: rgba(255,255,255,0.9);
-  color: var(--primary-color);
-
-  border: 1px solid rgba(0,0,0,0.06);
-  padding: 9px 20px;
-
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 600;
-
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-  transition: all 0.25s ease;
-}
-
-#chapter-btn:hover {
-  background: var(--primary-color);
-  color: #ffffff;
-  transform: translateY(-1px);
-}
-
-/* ===== 章節選單 ===== */
-#chapter-menu {
-  position: absolute;
-  inset: 0;
-
-  background: var(--bg-panel);
-  color: var(--text-main);
-
-  padding: 64px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  
+  padding: 40px 60px 40px 70px; /* 左側留空給 Back 按鈕 */
   box-sizing: border-box;
-  overflow-y: auto;
+  overflow-y: visible; /* 配合 height: auto */
+}
+
+/* ===== 操作按鈕區 ===== */
+#chapter-btn, #log-btn {
+  position: absolute;
+  top: 25px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #444;
+  border: 1px solid #ddd;
+  padding: 8px 18px;
+  border-radius: 50px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 100; 
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+}
+
+#chapter-btn { right: 25px; }
+#log-btn { left: 25px; }
+
+#chapter-btn:hover, #log-btn:hover {
+  background: white;
+  border-color: var(--primary-gold);
+  color: var(--primary-gold);
+  transform: translateY(-2px);
+}
+
+/* Back 按鈕 (圖片版優化) */
+#back-btn {
+  position: absolute;
+  left: 20px;          
+  top: 50%;           
+  transform: translateY(-50%);
+  z-index: 20;
+  cursor: pointer;
+  width: 32px; 
+  height: auto;
+  opacity: 0.4;
+  transition: all 0.3s ease;
+  filter: grayscale(1) invert(0); /* 確保在白底上可見 */
+}
+
+#back-btn:hover {
+  opacity: 1;
+  filter: grayscale(0);
+  transform: translateY(-50%) scale(1.15);
+}
+
+/* ===== 章節選單與 Log (明亮版) ===== */
+#chapter-menu, #log-window {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.98);
+  color: var(--text-black);
+}
+
+#chapter-menu {
+  inset: 0;
+  padding: 80px;
+  z-index: 200; 
 }
 
 .chapter-item {
-  padding: 20px 12px;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-  cursor: pointer;
+  padding: 20px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 1.2rem;
+  transition: color 0.3s;
+}
+.chapter-item:hover { color: var(--primary-gold); }
 
-  font-size: 1.05rem;
-  transition: all 0.25s ease;
+#log-window {
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 85%; height: 75%;
+  border: none;
+  border-radius: 24px;
+  box-shadow: 0 30px 100px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  overflow: hidden;
 }
 
-.chapter-item:hover {
-  color: var(--primary-color);
-  padding-left: 24px;
+.log-header {
+  padding: 20px 30px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+#log-content {
+  padding: 30px;
+  color: #333;
+}
+
+.log-name { color: var(--primary-gold); }
+
+#close-log-btn {
+  background: var(--text-black);
+  border: none;
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 20px;
 }
