@@ -1,26 +1,33 @@
 :root {
   --dialogue-height: 180px;
+  /* 定義明亮色調變數 */
+  --bg-light: rgba(255, 255, 255, 0.9);
+  --primary-color: #4A90E2; /* 柔和的藍色 */
+  --accent-color: #FFD93D;  /* 明亮的黃色 */
+  --text-main: #333333;
+  --text-sub: #666666;
 }
 
 html, body {
   margin: 0;
   width: 100%;
   height: 100%;
-  font-family: "Microsoft JhengHei", sans-serif;
-  background: black;
+  font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+  background: #f5f5f5; /* 改為淺灰色底 */
 }
 
 #game-screen {
   position: relative;
   width: 100vw;
   height: 100vh;
-  background:
-    linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.75)),
+  /* 改為較淺的漸層疊加，保持背景明亮 */
+  background: 
+    linear-gradient(rgba(255,255,255, 0.2), rgba(255,255,255, 0.5)),
     url("../assets/bg/room.png") center / cover no-repeat;
   cursor: pointer;
 }
 
-/* ===== 角色 ===== */
+/* ===== 角色相關 ===== */
 #avatar-container {
   position: absolute;
   bottom: calc(var(--dialogue-height) + 20px);
@@ -34,7 +41,7 @@ html, body {
   bottom: 0;
   max-height: 35vh;
   opacity: 0;
-  transition: opacity .6s ease, filter .4s ease;
+  transition: opacity .6s ease, filter .4s ease, transform .4s ease;
   animation: breathe 4s ease-in-out infinite;
 }
 
@@ -43,81 +50,98 @@ html, body {
 
 .avatar.active {
   opacity: 1;
-  filter: brightness(1);
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); /* 增加輕微陰影使角色立體 */
 }
 
 .avatar.inactive {
-  opacity: .45;
-  filter: brightness(.75);
+  opacity: .6;
+  filter: grayscale(30%) brightness(1.1); /* 不再變暗，而是稍微褪色 */
 }
 
-/* 呼吸動畫 */
 @keyframes breathe {
   0% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  50% { transform: translateY(-6px); }
   100% { transform: translateY(0); }
 }
 
-/* ===== 對話框 ===== */
+/* ===== 對話框（明亮磨砂風格） ===== */
 #dialogue-box {
   position: absolute;
-  bottom: 20px;
+  bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
   max-width: 900px;
   height: var(--dialogue-height);
-  background: rgba(0,0,0,.85);
-  border-radius: 10px;
-  padding: 20px;
+  background: var(--bg-light);
+  backdrop-filter: blur(10px); /* 磨砂玻璃效果 */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px; /* 更圓潤的角 */
+  padding: 30px 40px;
   box-sizing: border-box;
-  color: white;
+  color: var(--text-main);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* 柔和的陰影 */
 }
 
 #name-plate {
   position: absolute;
-  top: -28px;
-  left: 20px;
-  background: #ffcc00;
-  color: black;
-  padding: 4px 16px;
-  border-radius: 5px;
+  top: -18px;
+  left: 40px;
+  background: var(--accent-color);
+  color: #5a4a00; /* 深褐色文字配黃底更高級 */
+  padding: 6px 24px;
+  border-radius: 50px; /* 膠囊狀設計 */
   font-weight: bold;
+  box-shadow: 0 4px 10px rgba(255, 217, 61, 0.4);
+  font-size: 1.1rem;
 }
 
 #dialogue-text {
   white-space: pre-wrap;
-  line-height: 1.6;
+  line-height: 1.8;
+  font-size: 1.15rem;
+  letter-spacing: 0.05em;
 }
 
 #chapter-btn {
   position: absolute;
-  bottom: 12px;
-  right: 20px;
-  background: rgba(255,255,255,.15);
-  color: white;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
+  bottom: 15px;
+  right: 25px;
+  background: white;
+  color: var(--primary-color);
+  border: 1px solid #e0e0e0;
+  padding: 8px 18px;
+  border-radius: 20px;
   cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
+#chapter-btn:hover {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* ===== 章節選單 ===== */
 #chapter-menu {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,.85);
-  color: white;
-  padding: 40px;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text-main);
+  padding: 60px;
   box-sizing: border-box;
   overflow-y: auto;
 }
 
 .chapter-item {
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(255,255,255,.2);
+  padding: 18px 10px;
+  border-bottom: 1px solid #eeeeee;
   cursor: pointer;
+  transition: color 0.3s ease, padding-left 0.3s ease;
 }
 
 .chapter-item:hover {
-  color: #ffcc00;
+  color: var(--primary-color);
+  padding-left: 20px; /* 增加懸停位移感 */
 }
