@@ -22,30 +22,22 @@ const ui = {
 // ===== 文字清理與段落化 =====
 function formatText(rawText) {
     if (!rawText) return "";
-    // 去掉開頭結尾空格或換行
     let clean = rawText.replace(/^\s+|\s+$/g, "");
-    // 將多個換行縮成最多兩個
     clean = clean.replace(/\n{3,}/g, "\n\n");
-    // 轉成段落 <p>
     const paragraphs = clean.split(/\n+/).map(p => `<p>${p}</p>`);
     return paragraphs.join("");
 }
 
 // --- 初始化系統 ---
 function initGame() {
-    if (!ui.gameScreen) {
-        console.error("錯誤：找不到 id='game-screen' 的元素！");
-        return;
-    }
-
-    console.log("引擎啟動！初始化事件...");
+    if (!ui.gameScreen) return;
 
     ui.gameScreen.addEventListener("click", nextStep);
     setupChapterMenu();
 
     if (ui.logBtn) ui.logBtn.addEventListener("click", (e) => {
         e.stopPropagation(); 
-        ui.logWindow.hidden = false;
+        showLog(); // 補齊：顯示並更新 LOG 內容
     });
 
     if (ui.closeLogBtn) ui.closeLogBtn.addEventListener("click", (e) => {
@@ -53,7 +45,6 @@ function initGame() {
         ui.logWindow.hidden = true;
     });
 
-    // 點擊 LOG 外側區域也可關閉
     if (ui.logWindow) {
         ui.logWindow.addEventListener("click", (e) => {
             if (e.target === ui.logWindow) ui.logWindow.hidden = true;
@@ -72,6 +63,26 @@ function initGame() {
     }
 }
 
+// --- LOG 顯示邏輯 ---
+function showLog() {
+    if (!ui.logContent) return;
+    ui.logContent.innerHTML = ""; 
+
+    state.history.forEach(log => {
+        const entry = document.createElement("div");
+        entry.className = "log-entry";
+        const nameHtml = (log.speaker && log.speaker !== "Narrator") 
+            ? `<span class="log-name">${log.speaker}</span>` 
+            : "";
+        entry.innerHTML = `${nameHtml}<span class="log-text">${log.text}</span>`;
+        ui.logContent.appendChild(entry);
+    });
+
+    ui.logWindow.hidden = false;
+    // 自動捲動到底部
+    setTimeout(() => { ui.logContent.scrollTop = ui.logContent.scrollHeight; }, 50);
+}
+
 // --- 核心運作邏輯 ---
 const CHAR_LIMIT = 60;
 
@@ -84,16 +95,14 @@ function nextStep() {
         currentStepData = { ...rawStep, text: nextChunk };
     } else {
         if (state.index >= scenario.length) return;
-
         let step = { ...scenario[state.index] };
 
-        if (state.index >= 0) {
-            state.history.push({
-                index: state.index,
-                speaker: step.speaker || "",
-                text: step.text || ""
-            });
-        }
+        // 存入歷史紀錄
+        state.history.push({
+            index: state.index,
+            speaker: step.speaker || "",
+            text: step.text || ""
+        });
 
         state.index++;
         state.textQueue = [];
@@ -101,11 +110,9 @@ function nextStep() {
         if (step.text && step.text.length > CHAR_LIMIT) {
             const chunks = [];
             let remaining = step.text;
-
             while (remaining.length > 0) {
                 if (remaining.length <= CHAR_LIMIT) {
-                    chunks.push(remaining);
-                    break;
+                    chunks.push(remaining); break;
                 }
                 let chunkAttempt = remaining.substring(0, CHAR_LIMIT);
                 const punctuation = ["。","！","？","\n","……","⋯⋯","」"];
@@ -118,11 +125,9 @@ function nextStep() {
                 chunks.push(remaining.substring(0, finalCutIndex));
                 remaining = remaining.substring(finalCutIndex);
             }
-
             step.text = chunks.shift();
             state.textQueue = chunks;
         }
-
         currentStepData = step;
     }
 
@@ -138,22 +143,21 @@ function nextStep() {
 function prevStep() {
     if (state.backStack.length <= 1) return;
 
-    state.backStack.pop();
-    const prevSnapshot = state.backStack[state.backStack.length - 1];
+    const currentSnapshot = state.backStack.pop(); // 彈出當前狀態
+    const prevSnapshot = state.backStack[state.backStack.length - 1]; // 取得上一頁狀態
 
-    state.index = prevSnapshot.index;
-    state.textQueue = [...prevSnapshot.textQueue];
-
-    if (state.backStack[state.backStack.length - 1].index !== state.index) {
+    // 如果 index 發生變化，代表退回到了「上一句話」，則刪除最後一筆歷史
+    if (currentSnapshot.index !== prevSnapshot.index) {
         state.history.pop();
     }
 
+    state.index = prevSnapshot.index;
+    state.textQueue = [...prevSnapshot.textQueue];
     render(prevSnapshot.stepData);
 }
 
 function render(step) {
     if (!step) return;
-
     if (step.bg) changeBackground(step.bg);
 
     if (ui.namePlate) {
@@ -162,7 +166,6 @@ function render(step) {
         } else {
             ui.namePlate.style.display = ""; 
             ui.namePlate.textContent = step.speaker || "";
-            ui.namePlate.setAttribute("data-name", step.speaker || "");
             const charData = characters[step.speaker];
             if (charData && charData.nameColor) {
                 ui.namePlate.style.backgroundColor = charData.nameColor;
@@ -176,6 +179,7 @@ function render(step) {
 
     if (ui.textBox) {
         ui.textBox.innerHTML = formatText(step.text || "");
+        ui.textBox.scrollTop = 0; // 換頁時文字捲動回到頂端
     }
 
     if (ui.eventImage) {
@@ -184,10 +188,8 @@ function render(step) {
             ui.eventImage.hidden = false;
         } else {
             ui.eventImage.hidden = true;
-            ui.eventImage.src = "";
         }
     }
-
     updateCharacters(step);
 }
 
@@ -195,42 +197,33 @@ function changeBackground(bgID) {
     const bgPath = backgrounds[bgID];
     if (bgPath) {
         ui.gameScreen.style.backgroundImage = `url('${bgPath}')`;
-        ui.gameScreen.style.backgroundSize = "cover";     
-        ui.gameScreen.style.backgroundPosition = "center"; 
     }
 }
 
 function updateCharacters(step) {
-    if (ui.avatarRight) {
-        ui.avatarRight.style.display = "none";
-        ui.avatarRight.classList.remove("active");
-    }
-
+    if (ui.avatarRight) ui.avatarRight.style.display = "none";
     if (ui.avatarLeft) {
-        ui.avatarLeft.src = "";
         ui.avatarLeft.style.display = "none";
-        ui.avatarLeft.classList.remove("active");
         ui.avatarLeft.className = "avatar left";
     }
 
     if (step.speaker === "Narrator") return;
 
     const char = characters[step.speaker];
-    if (!char || !char.sprites) return;
-
-    const emotion = step.emotion || "normal";
-    if (char.sprites[emotion] && ui.avatarLeft) {
-        ui.avatarLeft.src = char.sprites[emotion];
-        ui.avatarLeft.style.display = "block";
-        ui.avatarLeft.classList.add("active");
-        ui.avatarLeft.classList.remove("inactive");
+    if (char && char.sprites) {
+        const emotion = step.emotion || "normal";
+        if (char.sprites[emotion] && ui.avatarLeft) {
+            ui.avatarLeft.src = char.sprites[emotion];
+            ui.avatarLeft.style.display = "block";
+            ui.avatarLeft.classList.add("active");
+        }
     }
 }
 
 function setupChapterMenu() {
     if (!ui.chapterBtn || !ui.chapterMenu) return;
     const chapters = scenario
-        .map((step,index) => step.chapter ? { title: step.chapter, index } : null)
+        .map((step, index) => step.chapter ? { title: step.chapter, index } : null)
         .filter(Boolean);
 
     ui.chapterBtn.addEventListener("click", (e) => {
@@ -238,9 +231,7 @@ function setupChapterMenu() {
         openChapterMenu(chapters);
     });
 
-    ui.chapterMenu.addEventListener("click", () => {
-        ui.chapterMenu.hidden = true;
-    });
+    ui.chapterMenu.addEventListener("click", () => { ui.chapterMenu.hidden = true; });
 }
 
 function openChapterMenu(chapters) {
@@ -259,9 +250,9 @@ function jumpToChapter(index) {
     state.index = index;
     state.textQueue = [];
     state.backStack = [];
+    state.history = state.history.filter(h => h.index < index); // 刪除該章節後的 LOG
     ui.chapterMenu.hidden = true;
     nextStep();
 }
 
-console.log("引擎啟動！");
 initGame();
