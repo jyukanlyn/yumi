@@ -1,177 +1,236 @@
-/* ===============================
-   🎨 主題變數（香檳金 × 磨砂）
-================================ */
+/* ============================================================
+   🎨 主題變數 (優雅香檳金風格)
+   ============================================================ */
 :root {
-  --champagne-gold: rgba(212, 175, 120, 0.85);
-  --glass-bg: rgba(255, 255, 255, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.35);
-  --text-main: #2e2a26;
-  --text-sub: #6f665b;
-
-  --dialogue-height: 180px;
-  --dialogue-bottom: 80px;
+    --champagne-gold: #c5a059;         /* 實體金色，增加文字對比度 */
+    --glass-bg: rgba(255, 255, 255, 0.75); /* 提升白底濃度，確保黑色文字清晰 */
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --text-main: #1a1a1a;              /* 純炭黑，適合長時間閱讀 */
+    --text-sub: #5c554e;
+    
+    --dialogue-height: 180px;
+    --dialogue-bottom: 40px;           /* 稍微上移，避免太貼近邊緣 */
 }
 
-/* ===============================
-   🖥 全畫面
-================================ */
+/* ============================================================
+   🖥 基礎重設
+   ============================================================ */
 html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  font-family: "Noto Serif TC", "Hiragino Mincho ProN", serif;
-  background: #f4f2ee;
-  overflow: hidden;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: "PingFang TC", "Microsoft JhengHei", "Noto Serif TC", serif;
+    background: #fdfcfb;
+    overflow: hidden;
 }
 
 #game-screen {
-  position: relative;
-  width: 100%;
-  height: 100%;
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background-color: #eee; /* 底層緩衝色 */
+    background-size: cover;
+    background-position: center;
 }
 
-/* ===============================
+/* ============================================================
    👤 角色立繪
-================================ */
+   ============================================================ */
 #avatar-container {
-  position: absolute;
-  bottom: calc(var(--dialogue-height) + var(--dialogue-bottom) - 20px);
-  width: 100%;
-  height: 80%;
-  pointer-events: none;
+    position: absolute;
+    bottom: calc(var(--dialogue-height) + var(--dialogue-bottom));
+    width: 100%;
+    height: 75vh;
+    pointer-events: none;
+    z-index: 5;
 }
 
 .avatar {
-  position: absolute;
-  max-height: 100%;
-  opacity: 0.95;
+    position: absolute;
+    bottom: 0;
+    max-height: 50%;
+    transition: opacity 0.6s ease, transform 0.6s ease, filter 0.4s ease;
 }
 
-.avatar.left {
-  left: 5%;
+.avatar.left { left: 8%; }
+.avatar.right { right: 8%; }
+
+.avatar.active {
+    opacity: 1;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
 }
 
-.avatar.right {
-  right: 5%;
+.avatar.inactive {
+    opacity: 0.5;
+    filter: grayscale(30%) brightness(1.1);
 }
 
-/* ===============================
-   💬 對話框（磨砂玻璃）
-================================ */
+/* ============================================================
+   💬 對話框 (磨砂玻璃優化版)
+   ============================================================ */
 #dialogue-box {
-  position: absolute;
-  left: 50%;
-  bottom: var(--dialogue-bottom);
-  transform: translateX(-50%);
-  width: 88%;
-  height: var(--dialogue-height);
+    position: absolute;
+    left: 50%;
+    bottom: var(--dialogue-bottom);
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 960px;
+    
+    /* 修正：使用 min-height 配合 height: auto 防止文字溢出 */
+    height: auto;
+    min-height: var(--dialogue-height);
 
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
 
-  border-radius: 22px;
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
 
-  padding: 20px 26px;
-  box-sizing: border-box;
+    padding: 30px 40px;
+    box-sizing: border-box;
+    z-index: 100;
 }
 
-/* 返回按鈕 */
+/* 返回按鈕 (修正位置與視覺) */
 #back-btn {
-  position: absolute;
-  top: 14px;
-  right: 18px;
-  width: 26px;
-  opacity: 0.65;
-  cursor: pointer;
+    position: absolute;
+    top: 20px;
+    left: 15px; /* 移到左側符合一般直覺 */
+    width: 28px;
+    height: auto;
+    opacity: 0.4;
+    cursor: pointer;
+    transition: opacity 0.3s ease, transform 0.2s ease;
 }
 
 #back-btn:hover {
-  opacity: 1;
+    opacity: 1;
+    transform: scale(1.1);
 }
 
-/* ===============================
-   🏷 名稱欄
-================================ */
+/* 名字欄 */
 #name-plate {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--champagne-gold);
-  letter-spacing: 0.08em;
-  margin-bottom: 8px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--champagne-gold);
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
 }
 
-/* ===============================
-   📝 對話文字
-================================ */
+/* 對話文字 (黑色) */
 #dialogue-text {
-  font-size: 17px;
-  line-height: 1.8;
-  color: var(--text-main);
-  white-space: pre-wrap;
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: var(--text-main);
+    white-space: pre-wrap;
+    padding-left: 10px;
 }
 
-/* ===============================
-   📜 LOG 視窗
-================================ */
+/* ============================================================
+   📜 UI 控制按鈕 (LOG/章節)
+   ============================================================ */
 #log-btn, #chapter-btn {
-  position: absolute;
-  top: 20px;
-  padding: 8px 16px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  color: var(--text-sub);
-  cursor: pointer;
+    position: absolute;
+    top: 20px;
+    padding: 8px 20px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 50px;
+    color: var(--text-sub);
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 200;
+    transition: all 0.3s ease;
 }
 
-#log-btn {
-  left: 20px;
+#log-btn { left: 20px; }
+#chapter-btn { right: 20px; }
+
+#log-btn:hover, #chapter-btn:hover {
+    background: white;
+    color: var(--champagne-gold);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-#chapter-btn {
-  right: 20px;
+/* ============================================================
+   🪟 視窗組件 (LOG / 選單)
+   ============================================================ */
+
+/* 核心修正：確保 hidden 屬性能蓋過 display: flex */
+#log-window:not([hidden]), 
+#chapter-menu:not([hidden]) {
+    display: flex;
 }
 
 #log-window {
-  position: absolute;
-  inset: 10%;
-  background: var(--glass-bg);
-  backdrop-filter: blur(18px);
-  border-radius: 26px;
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
-  display: flex;
-  flex-direction: column;
+    display: none; /* 預設隱藏 */
+    position: absolute;
+    inset: 8%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 30px;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    flex-direction: column;
+    z-index: 1000;
+    overflow: hidden;
 }
 
 .log-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    background: #f9f8f6;
+    border-bottom: 1px solid #eee;
+}
+
+.log-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--champagne-gold);
 }
 
 #log-content {
-  padding: 20px;
-  overflow-y: auto;
-  color: var(--text-main);
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+    color: var(--text-main);
+    line-height: 2;
 }
 
-/* ===============================
-   📖 章節選單
-================================ */
+#close-log-btn {
+    background: var(--text-sub);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+}
+
+/* 章節選單樣式優化 */
 #chapter-menu {
-  position: absolute;
-  right: 20px;
-  top: 70px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(14px);
-  border-radius: 16px;
-  padding: 12px;
-  border: 1px solid var(--glass-border);
+    display: none; /* 預設隱藏 */
+    position: absolute;
+    right: 20px;
+    top: 75px;
+    min-width: 200px;
+    background: white;
+    border-radius: 16px;
+    padding: 15px;
+    border: 1px solid #eee;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    z-index: 500;
+}
+
+/* ============================================================
+   🛠 通用工具
+   ============================================================ */
+[hidden] {
+    display: none !important;
 }
