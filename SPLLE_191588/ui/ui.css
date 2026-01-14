@@ -216,4 +216,24 @@ html, body {
     cursor: pointer;
 }
 
-#close-log-btn:hover { background: va
+#close-log-btn:hover { background: var(--champagne-gold); color: white; }
+
+#log-btn, #chapter-btn {
+    position: absolute;
+    top: 20px;
+    padding: 8px 20px;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border-radius: 50px;
+    border: 1px solid rgba(0,0,0,0.05);
+    z-index: 200;
+}
+
+#log-btn { left: 20px; }
+#chapter-btn { right: 20px; }
+
+/* 動畫定義 */
+@keyframes fadeInWindow { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+[hidden] { display: none !important; }
