@@ -89,9 +89,10 @@ html, body {
     padding: 25px 40px;
     box-sizing: border-box;
     z-index: 100;
+    overflow: hidden; /* 固定高度，多餘文字進下一頁 */
 }
 
-/* 返回按鈕 (保持 120px 位置) */
+/* 返回按鈕 */
 #back-btn {
     position: absolute;
     top: 120px; 
@@ -116,12 +117,8 @@ html, body {
     line-height: 1.7;
     color: var(--text-main);
     white-space: pre-wrap;
-    max-height: calc(var(--dialogue-height) - 80px); 
+    overflow: hidden; /* 隱藏超過框的文字 */
 }
-
-/* 對話框內捲軸美化 */
-//#dialogue-text::-webkit-scrollbar { width: 4px; }//
-//#dialogue-text::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }//
 
 /* ============================================================
    📜 LOG 視窗
@@ -169,7 +166,7 @@ html, body {
 #log-content {
     flex: 1;
     padding: 30px 40px;
-    overflow-y: auto;       /* 核心：開啟垂直滑動 */
+    overflow-y: auto; 
     overflow-x: hidden;
     scroll-behavior: smooth;
     animation: fadeInUp 0.6s ease-out;
@@ -219,24 +216,4 @@ html, body {
     cursor: pointer;
 }
 
-#close-log-btn:hover { background: var(--champagne-gold); color: white; }
-
-#log-btn, #chapter-btn {
-    position: absolute;
-    top: 20px;
-    padding: 8px 20px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(8px);
-    border-radius: 50px;
-    border: 1px solid rgba(0,0,0,0.05);
-    z-index: 200;
-}
-
-#log-btn { left: 20px; }
-#chapter-btn { right: 20px; }
-
-/* 動畫定義 */
-@keyframes fadeInWindow { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-[hidden] { display: none !important; }
+#close-log-btn:hover { background: va
