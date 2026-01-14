@@ -91,7 +91,7 @@ html, body {
 #back-btn {
     position: absolute;
     /* 調整位置，確保不在 padding 之外 */
-    top: 50px;
+    top: 160px;
     left: 15px; 
     
     width: 24px;   /* 強制設定寬度 */
