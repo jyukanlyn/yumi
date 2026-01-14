@@ -1,12 +1,14 @@
 :root {
   --dialogue-height: 180px;
 
-  /* ===== 色彩系統 ===== */
-  --bg-light: rgba(255, 255, 255, 0.92);
-  --primary-color: #4A90E2;
-  --accent-color: #FFD93D;
+  /* ===== 明亮優雅配色 ===== */
+  --bg-light: rgba(255, 255, 255, 0.94);
+  --bg-panel: rgba(255, 255, 255, 0.98);
 
-  --text-main: #1a1a1a; /* 主文字（接近黑） */
+  --primary-color: #5B8EDB;   /* 柔和藍 */
+  --accent-color: #FFE27A;    /* 奶油黃 */
+
+  --text-main: #222222;       /* 柔黑 */
   --text-sub: #666666;
 }
 
@@ -16,7 +18,8 @@ html, body {
   width: 100%;
   height: 100%;
   font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
-  background: #f5f5f5;
+  background: #f3f4f6;
+  color: var(--text-main);
 }
 
 /* ===== 遊戲畫面 ===== */
@@ -24,8 +27,11 @@ html, body {
   position: relative;
   width: 100vw;
   height: 100vh;
-  background: 
-    linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.5)),
+  background:
+    linear-gradient(
+      rgba(255,255,255,0.35),
+      rgba(255,255,255,0.55)
+    ),
     url("../assets/bg/room.png") center / cover no-repeat;
   cursor: pointer;
 }
@@ -33,7 +39,7 @@ html, body {
 /* ===== 角色 ===== */
 #avatar-container {
   position: absolute;
-  bottom: calc(var(--dialogue-height) + 20px);
+  bottom: calc(var(--dialogue-height) + 24px);
   width: 100%;
   height: 60vh;
   pointer-events: none;
@@ -42,109 +48,140 @@ html, body {
 .avatar {
   position: absolute;
   bottom: 0;
-  max-height: 35vh;
+  max-height: 36vh;
   opacity: 0;
   transition: opacity .6s ease, filter .4s ease, transform .4s ease;
-  animation: breathe 4s ease-in-out infinite;
+  animation: breathe 4.5s ease-in-out infinite;
 }
 
-.avatar.left { left: 40px; }
-.avatar.right { right: 40px; }
+.avatar.left { left: 48px; }
+.avatar.right { right: 48px; }
 
 .avatar.active {
   opacity: 1;
-  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+  filter:
+    drop-shadow(0 12px 28px rgba(0,0,0,0.12));
 }
 
 .avatar.inactive {
-  opacity: .6;
-  filter: grayscale(30%) brightness(1.1);
+  opacity: 0.55;
+  filter: grayscale(25%) brightness(1.05);
 }
 
 @keyframes breathe {
   0% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-5px); }
   100% { transform: translateY(0); }
 }
 
-/* ===== 對話框（最終版） ===== */
+/* ===== 對話框 ===== */
 #dialogue-box {
   position: absolute;
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
+
   width: 90%;
   max-width: 900px;
   height: var(--dialogue-height);
 
   background: var(--bg-light);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.6);
-  border-radius: 20px;
+  backdrop-filter: blur(14px);
 
-  padding: 35px 45px;
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 22px;
+
+  padding: 36px 46px;
   box-sizing: border-box;
 
+  box-shadow:
+    0 16px 40px rgba(0,0,0,0.08);
+
   color: var(--text-main);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.06);
 }
 
 /* ===== 名字牌 ===== */
 #name-plate {
   position: absolute;
-  top: -18px;
-  left: 40px;
-  background: var(--accent-color);
-  color: #000000;
+  top: -20px;
+  left: 42px;
 
-  padding: 6px 24px;
-  border-radius: 50px;
-  font-size: 1.1rem;
-  font-weight: 900;
+  background: linear-gradient(
+    135deg,
+    #FFE27A,
+    #FFD34D
+  );
 
-  box-shadow: 0 4px 12px rgba(255,217,61,0.3);
+  color: #3a2f00;
+  padding: 7px 26px;
+
+  border-radius: 999px;
+  font-size: 1.05rem;
+  font-weight: 800;
+
+  box-shadow:
+    0 6px 16px rgba(255,217,90,0.35);
 }
 
 /* ===== 對話文字 ===== */
 #dialogue-text {
   white-space: pre-wrap;
-  line-height: 1.8;
-  font-size: 1.2rem;
+  line-height: 1.85;
+  font-size: 1.15rem;
   font-weight: 500;
-  letter-spacing: 0.02em;
-  color: #000000;
+  letter-spacing: 0.03em;
+  color: var(--text-main);
 }
 
 /* ===== 章節按鈕 ===== */
 #chapter-btn {
   position: absolute;
-  bottom: 15px;
-  right: 25px;
-  background: white;
+  bottom: 16px;
+  right: 26px;
+
+  background: rgba(255,255,255,0.9);
   color: var(--primary-color);
-  border: 1px solid #e0e0e0;
-  padding: 8px 18px;
-  border-radius: 20px;
+
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 9px 20px;
+
+  border-radius: 999px;
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  font-weight: 600;
+
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  transition: all 0.25s ease;
 }
 
 #chapter-btn:hover {
   background: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
+  color: #ffffff;
+  transform: translateY(-1px);
 }
 
 /* ===== 章節選單 ===== */
 #chapter-menu {
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,0.98);
-  color: #000000;
-  padding: 60px;
+
+  background: var(--bg-panel);
+  color: var(--text-main);
+
+  padding: 64px;
   box-sizing: border-box;
   overflow-y: auto;
 }
 
-.chapter
+.chapter-item {
+  padding: 20px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  cursor: pointer;
+
+  font-size: 1.05rem;
+  transition: all 0.25s ease;
+}
+
+.chapter-item:hover {
+  color: var(--primary-color);
+  padding-left: 24px;
+}
