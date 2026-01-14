@@ -1,56 +1,75 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<title>くちくちにしましょうね</title>
-<link rel="stylesheet" href="ui/ui.css">
-// <link rel="icon" type="image/png" href="icon.png">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>くちくちにしましょうね</title>
+    <link rel="stylesheet" href="ui/ui.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
 
 <div id="game-screen">
 
-  <button id="log-btn">LOG</button>
+    <button id="log-btn">LOG</button>
+    <button id="chapter-btn">章節</button>
 
-  <div id="log-window" hidden>
-    <div class="log-header">
-      <h2>LOG</h2>
-      <button id="close-log-btn">關閉</button>
+    <div id="log-window" hidden>
+        <div class="log-panel">
+            <div class="log-header">
+                <h2>LOG</h2>
+                <button id="close-log-btn">關閉</button>
+            </div>
+            <div id="log-content"></div>
+        </div>
     </div>
-    <div id="log-content"></div>
-  </div>
-  
-  <div id="avatar-container">
-    <img id="avatar-left" class="avatar left" draggable="false">
-    <img id="avatar-right" class="avatar right" draggable="false">
-  </div>
-
-  <div id="dialogue-box">
-    <img id="back-btn" src="assets/ui/back.png" alt="返回上一頁" draggable="false">
     
-    <div id="name-plate"></div>
-    
-    <div id="dialogue-text"></div>
-  </div>
+    <div id="avatar-container">
+        <img id="avatar-left" class="avatar left" draggable="false" alt="">
+        <img id="avatar-right" class="avatar right" draggable="false" alt="">
+    </div>
 
-  <button id="chapter-btn">章節</button>
+    <div id="dialogue-box">
+        <img id="back-btn" src="assets/ui/back.png" alt="返回上一頁" draggable="false">
+        <div id="name-plate"></div>
+        <div id="dialogue-text"></div>
+    </div>
 
-  <div id="chapter-menu" hidden></div>
+    <div id="chapter-menu" hidden></div>
 
 </div>
 
 <script>
-window.onerror = function(message, source, lineno, colno, error) {
-  alert("💀 發生錯誤：\n" + message + "\n\n檔案：" + source + "\n行數：" + lineno);
-};
+    // 錯誤監控
+    window.onerror = function(message, source, lineno, colno, error) {
+        alert("💀 發生錯誤：\n" + message + "\n\n檔案：" + source + "\n行數：" + lineno);
+    };
+
+    // LOG 視窗邏輯
+    const logWindow = document.getElementById('log-window');
+    const logBtn = document.getElementById('log-btn');
+    const closeLogBtn = document.getElementById('close-log-btn');
+
+    // 打開 LOG
+    logBtn.onclick = () => { logWindow.hidden = false; };
+
+    // 監聽點擊事件：點擊全螢幕背景時關閉
+    logWindow.addEventListener('click', (event) => {
+        if (event.target === logWindow) {
+            logWindow.hidden = true;
+        }
+    });
+
+    // 關閉按鈕點擊
+    closeLogBtn.onclick = () => {
+        logWindow.hidden = true;
+    };
 </script>
 
 <script type="module">
-  import("./engine/engine.js").catch(e => {
-    alert("❌ 模組載入失敗！\n請檢查 engine.js 路徑。\n\n" + e);
-  });
+    import("./engine/engine.js").catch(e => {
+        alert("❌ 模組載入失敗！\n請檢查 engine.js 路徑。\n\n" + e);
+    });
 </script>
 
 </body>
