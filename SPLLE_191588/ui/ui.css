@@ -49,6 +49,7 @@ html, body {
     overflow: hidden; 
 }
 
+
 .avatar {
     position: absolute;
     /* 讓立繪底部直接踩在容器的最下方 */
@@ -60,6 +61,12 @@ html, body {
     transition: opacity 0.6s ease, transform 0.4s ease, filter 0.4s ease;
     /* 角色立繪微調：加上細微的呼吸感，但不要讓腳部離開邊緣 */
     transform-origin: bottom center;
+}
+/* 左側角色的位置 */
+.avatar.left {
+    /* 數值越大，角色越往「右」移 */
+    /* 數值越小，角色越往「左」靠 */
+    left: 20%;  /* 原本可能是 5% 或 8%，增加這個值會讓角色向右靠攏 */
 }
 
 /* 呼吸動畫優化：只做縮放或輕微上移，確保腳步不穿幫 */
@@ -108,7 +115,7 @@ html, body {
 #back-btn {
     position: absolute;
     /* 調整位置，確保不在 padding 之外 */
-    top: 160px;
+    top: 150px;
     left: 15px; 
     
     width: 24px;   /* 強制設定寬度 */
