@@ -37,7 +37,7 @@ function initGame() {
 
     if (ui.logBtn) ui.logBtn.addEventListener("click", (e) => {
         e.stopPropagation(); 
-        showLog(); // 補齊：顯示並更新 LOG 內容
+        showLog();
     });
 
     if (ui.closeLogBtn) ui.closeLogBtn.addEventListener("click", (e) => {
@@ -79,8 +79,9 @@ function showLog() {
     });
 
     ui.logWindow.hidden = false;
-    // 自動捲動到底部
-    setTimeout(() => { ui.logContent.scrollTop = ui.logContent.scrollHeight; }, 50);
+    setTimeout(() => { 
+        if(ui.logContent) ui.logContent.scrollTop = ui.logContent.scrollHeight; 
+    }, 50);
 }
 
 // --- 核心運作邏輯 ---
@@ -97,7 +98,6 @@ function nextStep() {
         if (state.index >= scenario.length) return;
         let step = { ...scenario[state.index] };
 
-        // 存入歷史紀錄
         state.history.push({
             index: state.index,
             speaker: step.speaker || "",
@@ -136,17 +136,16 @@ function nextStep() {
     state.backStack.push({
         index: state.index,
         textQueue: [...state.textQueue],
-        stepData: currentStepData
+        stepData: JSON.parse(JSON.stringify(currentStepData))
     });
 }
 
 function prevStep() {
     if (state.backStack.length <= 1) return;
 
-    const currentSnapshot = state.backStack.pop(); // 彈出當前狀態
-    const prevSnapshot = state.backStack[state.backStack.length - 1]; // 取得上一頁狀態
+    const currentSnapshot = state.backStack.pop(); 
+    const prevSnapshot = state.backStack[state.backStack.length - 1];
 
-    // 如果 index 發生變化，代表退回到了「上一句話」，則刪除最後一筆歷史
     if (currentSnapshot.index !== prevSnapshot.index) {
         state.history.pop();
     }
@@ -179,7 +178,7 @@ function render(step) {
 
     if (ui.textBox) {
         ui.textBox.innerHTML = formatText(step.text || "");
-        ui.textBox.scrollTop = 0; // 換頁時文字捲動回到頂端
+        ui.textBox.scrollTop = 0;
     }
 
     if (ui.eventImage) {
@@ -195,7 +194,7 @@ function render(step) {
 
 function changeBackground(bgID) {
     const bgPath = backgrounds[bgID];
-    if (bgPath) {
+    if (bgPath && ui.gameScreen) {
         ui.gameScreen.style.backgroundImage = `url('${bgPath}')`;
     }
 }
@@ -250,7 +249,7 @@ function jumpToChapter(index) {
     state.index = index;
     state.textQueue = [];
     state.backStack = [];
-    state.history = state.history.filter(h => h.index < index); // 刪除該章節後的 LOG
+    state.history = state.history.filter(h => h.index < index);
     ui.chapterMenu.hidden = true;
     nextStep();
 }
