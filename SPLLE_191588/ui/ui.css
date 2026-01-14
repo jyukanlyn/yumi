@@ -33,30 +33,47 @@ html, body {
     background-position: center;
 }
 
-/* ============================================================
-   👤 角色立繪
-   ============================================================ */
+/* ===============================
+   👤 角色立繪 (精準貼齊對話框)
+   =============================== */
 #avatar-container {
     position: absolute;
+    /* 計算方式：對話框高度 + 對話框距底部高度 */
+    /* 這裡使用 var 確保同步，如果對話框高度是 180px, 距底 40px，這裡就是 220px */
     bottom: calc(var(--dialogue-height) + var(--dialogue-bottom));
     width: 100%;
     height: 50%;
     pointer-events: none;
     z-index: 5;
+    /* 隱藏超出容器的部分，確保立繪不會向下穿透進對話框內部 */
+    overflow: hidden; 
 }
 
 .avatar {
     position: absolute;
-    bottom: 0;
+    /* 讓立繪底部直接踩在容器的最下方 */
+    bottom: -5px; 
     max-height: 100%;
-    transition: opacity 0.6s ease, filter 0.4s ease;
+    width: auto;
+    
+    /* 增加一點進場動畫，讓立繪顯得更優雅 */
+    transition: opacity 0.6s ease, transform 0.4s ease, filter 0.4s ease;
+    /* 角色立繪微調：加上細微的呼吸感，但不要讓腳部離開邊緣 */
+    transform-origin: bottom center;
 }
 
-.avatar.left { left: 8%; }
-.avatar.right { right: 8%; }
+/* 呼吸動畫優化：只做縮放或輕微上移，確保腳步不穿幫 */
+@keyframes breathe {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.01); }
+    100% { transform: scale(1); }
+}
 
-.avatar.active { opacity: 1; }
-.avatar.inactive { opacity: 0.5; filter: grayscale(30%); }
+.avatar.active {
+    opacity: 1;
+    animation: breathe 5s ease-in-out infinite;
+    filter: drop-shadow(0 -5px 15px rgba(0,0,0,0.05)); /* 淡淡的背光感 */
+}
 
 /* ============================================================
    💬 對話框 (固定大小版)
