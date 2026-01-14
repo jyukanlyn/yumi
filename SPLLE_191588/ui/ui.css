@@ -120,8 +120,8 @@ html, body {
 }
 
 /* 對話框內捲軸美化 */
-#dialogue-text::-webkit-scrollbar { width: 4px; }
-#dialogue-text::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+//#dialogue-text::-webkit-scrollbar { width: 4px; }//
+//#dialogue-text::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }//
 
 /* ============================================================
    📜 LOG 視窗
