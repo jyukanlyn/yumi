@@ -1,33 +1,36 @@
 :root {
   --dialogue-height: 180px;
-  /* 定義明亮色調變數 */
-  --bg-light: rgba(255, 255, 255, 0.9);
-  --primary-color: #4A90E2; /* 柔和的藍色 */
-  --accent-color: #FFD93D;  /* 明亮的黃色 */
-  --text-main: #333333;
+
+  /* ===== 色彩系統 ===== */
+  --bg-light: rgba(255, 255, 255, 0.92);
+  --primary-color: #4A90E2;
+  --accent-color: #FFD93D;
+
+  --text-main: #1a1a1a; /* 主文字（接近黑） */
   --text-sub: #666666;
 }
 
+/* ===== 全域 ===== */
 html, body {
   margin: 0;
   width: 100%;
   height: 100%;
   font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
-  background: #f5f5f5; /* 改為淺灰色底 */
+  background: #f5f5f5;
 }
 
+/* ===== 遊戲畫面 ===== */
 #game-screen {
   position: relative;
   width: 100vw;
   height: 100vh;
-  /* 改為較淺的漸層疊加，保持背景明亮 */
   background: 
-    linear-gradient(rgba(255,255,255, 0.2), rgba(255,255,255, 0.5)),
+    linear-gradient(rgba(255,255,255,0.2), rgba(255,255,255,0.5)),
     url("../assets/bg/room.png") center / cover no-repeat;
   cursor: pointer;
 }
 
-/* ===== 角色相關 ===== */
+/* ===== 角色 ===== */
 #avatar-container {
   position: absolute;
   bottom: calc(var(--dialogue-height) + 20px);
@@ -50,12 +53,12 @@ html, body {
 
 .avatar.active {
   opacity: 1;
-  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); /* 增加輕微陰影使角色立體 */
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
 }
 
 .avatar.inactive {
   opacity: .6;
-  filter: grayscale(30%) brightness(1.1); /* 不再變暗，而是稍微褪色 */
+  filter: grayscale(30%) brightness(1.1);
 }
 
 @keyframes breathe {
@@ -64,7 +67,7 @@ html, body {
   100% { transform: translateY(0); }
 }
 
-/* ===== 對話框（明亮磨砂風格） ===== */
+/* ===== 對話框（最終版） ===== */
 #dialogue-box {
   position: absolute;
   bottom: 30px;
@@ -73,36 +76,46 @@ html, body {
   width: 90%;
   max-width: 900px;
   height: var(--dialogue-height);
+
   background: var(--bg-light);
-  backdrop-filter: blur(10px); /* 磨砂玻璃效果 */
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 20px; /* 更圓潤的角 */
-  padding: 30px 40px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 20px;
+
+  padding: 35px 45px;
   box-sizing: border-box;
+
   color: var(--text-main);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08); /* 柔和的陰影 */
+  box-shadow: 0 12px 40px rgba(0,0,0,0.06);
 }
 
+/* ===== 名字牌 ===== */
 #name-plate {
   position: absolute;
   top: -18px;
   left: 40px;
   background: var(--accent-color);
-  color: #5a4a00; /* 深褐色文字配黃底更高級 */
+  color: #000000;
+
   padding: 6px 24px;
-  border-radius: 50px; /* 膠囊狀設計 */
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(255, 217, 61, 0.4);
+  border-radius: 50px;
   font-size: 1.1rem;
+  font-weight: 900;
+
+  box-shadow: 0 4px 12px rgba(255,217,61,0.3);
 }
 
+/* ===== 對話文字 ===== */
 #dialogue-text {
   white-space: pre-wrap;
   line-height: 1.8;
-  font-size: 1.15rem;
-  letter-spacing: 0.05em;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #000000;
 }
 
+/* ===== 章節按鈕 ===== */
 #chapter-btn {
   position: absolute;
   bottom: 15px;
@@ -127,21 +140,11 @@ html, body {
 #chapter-menu {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.95);
-  color: var(--text-main);
+  background: rgba(255,255,255,0.98);
+  color: #000000;
   padding: 60px;
   box-sizing: border-box;
   overflow-y: auto;
 }
 
-.chapter-item {
-  padding: 18px 10px;
-  border-bottom: 1px solid #eeeeee;
-  cursor: pointer;
-  transition: color 0.3s ease, padding-left 0.3s ease;
-}
-
-.chapter-item:hover {
-  color: var(--primary-color);
-  padding-left: 20px; /* 增加懸停位移感 */
-}
+.chapter
