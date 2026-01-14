@@ -3,61 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>くちくちにしましょうね</title>
+
+    <!-- 主 UI 樣式 -->
     <link rel="stylesheet" href="ui/ui.css">
+
+    <!-- 網站圖示 -->
     <link rel="icon" type="image/png" href="icon.png">
-    <style>
-        /* 額外補充：確保對話文字能正確顯示換行 */
-        #dialogue-text {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        /* 增加鼠標手勢 */
-        #back-btn, #log-btn, #chapter-btn, #close-log-btn {
-            cursor: pointer;
-        }
-    </style>
 </head>
 
 <body>
 
 <div id="game-screen">
 
-    <button id="log-btn">LOG</button>
+    <!-- ===== 操作按鈕區 ===== -->
+    <div id="ui-controls">
+        <button id="log-btn" class="ui-btn">LOG</button>
+    </div>
 
+    <!-- ===== LOG 視窗 ===== -->
     <div id="log-window" hidden>
         <div class="log-header">
             <h2>LOG</h2>
-            <button id="close-log-btn">關閉</button>
+            <button id="close-log-btn" class="ui-btn">關閉</button>
         </div>
-        <div id="log-content">
-            </div>
+        <div id="log-content"></div>
     </div>
-    
+
+    <!-- ===== 角色立繪 ===== -->
     <div id="avatar-container">
-        <img id="avatar-left" class="avatar left" draggable="false">
-        <img id="avatar-right" class="avatar right" draggable="false">
+        <img id="avatar-left" class="avatar left" draggable="false" alt="">
+        <img id="avatar-right" class="avatar right" draggable="false" alt="">
     </div>
 
+    <!-- ===== 對話框 ===== -->
     <div id="dialogue-box">
-        <img id="back-btn" src="assets/ui/back.png" alt="返回上一頁" draggable="false">
+
+        <!-- 返回鍵 -->
+        <img
+            id="back-btn"
+            src="assets/ui/back.png"
+            alt="返回"
+            draggable="false"
+        >
+
+        <!-- 名字 -->
         <div id="name-plate"></div>
+
+        <!-- 對話文字 -->
         <div id="dialogue-text"></div>
+
     </div>
 
-    <button id="chapter-btn">章節</button>
+    <!-- ===== 章節按鈕 ===== -->
+    <button id="chapter-btn" class="ui-btn">章節</button>
 
+    <!-- ===== 章節選單 ===== -->
     <div id="chapter-menu" hidden></div>
 
 </div>
 
+<!-- ===== 錯誤攔截（開發用） ===== -->
 <script>
-    window.onerror = function(message, source, lineno, colno, error) {
+    window.onerror = function (message, source, lineno, colno, error) {
         console.error("Game Error:", error);
-        alert("💀 發生錯誤：\n" + message + "\n\n檔案：" + source + "\n行數：" + lineno);
+        alert(
+            "💀 發生錯誤：\n" +
+            message +
+            "\n\n檔案：" + source +
+            "\n行數：" + lineno
+        );
     };
 </script>
 
+<!-- ===== 遊戲主引擎 ===== -->
 <script type="module" src="./engine/engine.js"></script>
 
 </body>
