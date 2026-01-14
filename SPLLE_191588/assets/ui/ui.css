@@ -1,0 +1,290 @@
+/* ui/ui.css */
+
+:root {
+  --dialogue-height: 180px;
+}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  font-family: "Microsoft JhengHei", sans-serif;
+  background: black;
+  overflow: hidden; /* 防止出現網頁捲軸 */
+}
+
+#game-screen {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background-image: url("../assets/bg/bedroom.png");
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  z-index: 1; 
+}
+
+/* --- 獨立的變暗遮罩 --- */
+#game-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8));
+  pointer-events: none;
+  z-index: -1; 
+}
+
+/* ===== 特殊事件圖片 (骰子/CG) ===== */
+#event-image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 60vw; 
+  max-height: 60vh;
+  z-index: 15;
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* ===== 角色 ===== */
+#avatar-container {
+  position: absolute;
+  bottom: calc(var(--dialogue-height) + 20px);
+  width: 100%;
+  height: 60vh;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.avatar {
+  position: absolute;
+  bottom: 0;
+  max-height: 25vh;
+  opacity: 0;
+  transition: opacity .6s ease, filter .4s ease;
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.avatar.left { 
+    left: 10%; 
+}
+.avatar.right { 
+    right: 10%; 
+}
+.avatar.active { opacity: 1; filter: brightness(1); }
+.avatar.inactive { opacity: .45; filter: brightness(.75); }
+
+@keyframes breathe {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+/* ===== 對話框 ===== */
+#dialogue-box {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 900px;
+  height: var(--dialogue-height);
+  background: rgba(0,0,0,.85);
+  border-radius: 10px;
+  
+  /* 左邊 padding 加大，避免壓到 Back 按鈕 */
+  padding: 20px 20px 20px 60px; 
+  
+  box-sizing: border-box;
+  color: white;
+  z-index: 10;
+  pointer-events: auto; 
+}
+
+/* 名字框 */
+#name-plate {
+  position: absolute;
+  top: -28px;
+  left: 20px;  
+  right: auto; 
+  background: #ffcc00;
+  color: black;
+  padding: 4px 16px;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+#name-plate.right-side { left: auto; right: 20px; }
+#name-plate:empty { display: none; }
+
+/* 對話內容 */
+#dialogue-text {
+  position: absolute;
+  top: 0; 
+  /* ⚠️ 修正：原本寫 left: 10%，這會導致文字框往右偏移並超出黑框，必須改回 0 */
+  left: 0;
+  
+  /* 高度設定 */
+  width: 100%; 
+  height: calc(100% - 40px);
+  
+  color: white;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  
+  /* 留白設定 */
+  padding-top: 40px; 
+  padding-left: 60px;
+  padding-right: 60px;
+  padding-bottom: 50px;
+  box-sizing: border-box;
+  
+  /* 增加捲動功能 */
+  overflow-y: auto;
+}
+
+/* ===== 按鈕區 ===== */
+#chapter-btn {
+  position: absolute;
+  top: 20px; right: 20px;
+  background: rgba(255,255,255,.15);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 20; 
+}
+#chapter-btn:hover { background: rgba(255,255,255,.3); }
+
+#log-btn {
+  position: absolute;
+  top: 20px; left: 20px;
+  z-index: 100; 
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+#log-btn:hover { background: rgba(0,0,0,0.8); border-color: white; }
+
+/* 👇👇👇 【修改區】Back 按鈕 (換成圖片版樣式) 👇👇👇 */
+#back-btn {
+  position: absolute;
+  left: 15px;         
+  top: 50%;           
+  transform: translateY(-50%);
+  z-index: 20;
+  cursor: pointer;
+  
+  /* 設定圖片寬度，可自行調整 */
+  width: 30px; 
+  height: auto;
+  
+  /* 預設半透明 */
+  opacity: 0.6;
+  
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  user-select: none;  
+  -webkit-user-drag: none; /* 防止圖片被拖曳 */
+}
+
+#back-btn:hover {
+  opacity: 1; /* 滑鼠移上去變亮 */
+  transform: translateY(-50%) scale(1.1); /* 稍微放大 */
+}
+
+#back-btn:active {
+  transform: translateY(-50%) scale(0.95); /* 按下去縮小 */
+}
+/* 👆👆👆 【修改結束】 👆👆👆 */
+
+/* ===== 章節選單 (全螢幕) ===== */
+#chapter-menu {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.95);
+  color: white;
+  padding: 40px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  z-index: 200; 
+}
+.chapter-item {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,.2);
+  cursor: pointer;
+}
+.chapter-item:hover { color: #ffcc00; }
+
+/* ===== Log 視窗 ===== */
+#log-window {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 70%;
+  max-width: 800px;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 2px solid #888;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 1px solid #555;
+  background-color: rgba(255, 255, 255, 0.1);
+  flex-shrink: 0; 
+}
+
+#log-content {
+  flex: 1; 
+  overflow-y: auto; 
+  padding: 20px;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #ddd;
+}
+
+#log-content::-webkit-scrollbar { width: 8px; }
+#log-content::-webkit-scrollbar-track { background: #333; }
+#log-content::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+
+.log-entry {
+  margin-bottom: 15px;
+  border-bottom: 1px dashed #333;
+  padding-bottom: 10px;
+}
+.log-name { color: #ffcc00; font-weight: bold; margin-right: 10px; }
+
+#close-log-btn {
+  background: transparent;
+  border: 1px solid #fff;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+#close-log-btn:hover { background: #fff; color: #000; }
+
+[hidden] {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}

@@ -1,34 +1,109 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<title>AVG Project</title>
-<link rel="stylesheet" href="ui/ui.css">
-</head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eternal Love - CP Showcase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- 全局變量與基礎設定 --- */
+        :root {
+            --primary-pink: #ffb7c5;
+            --deep-pink: #e0849b;
+            --soft-white: rgba(255, 255, 255, 0.85);
+            --glass-bg: rgba(255, 255, 255, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --text-main: #5e4b52;
+            --text-accent: #d45d79;
+        }
 
-<body>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Noto Serif TC', serif;
+            background: linear-gradient(135deg, #fff0f3 0%, #ffe6eb 100%);
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
 
-<div id="game-screen">
+        /* --- 背景飄落動畫容器 --- */
+        #falling-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
 
-  <div id="avatar-container">
-    <img id="avatar-left" class="avatar left">
-    <img id="avatar-right" class="avatar right">
-  </div>
+        .heart {
+            position: absolute;
+            background-color: var(--primary-pink);
+            display: inline-block;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: fall linear infinite;
+        }
 
-<div id="dialogue-box">
-  <div id="name-plate"></div>
-  <div id="dialogue-text"></div>
+        /* --- 主容器佈局 --- */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
 
-  <button id="chapter-btn">章節</button>
-</div>
+        /* --- 毛玻璃卡片通用樣式 --- */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(255, 183, 197, 0.2);
+            padding: 40px;
+            margin-bottom: 40px;
+            transition: transform 0.3s ease;
+        }
 
-<div id="chapter-menu" hidden></div>
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(255, 183, 197, 0.35);
+        }
 
-</div>
+        /* --- 標題區域 --- */
+        .hero-title {
+            font-family: 'Cinzel', serif;
+            font-size: 3.5rem;
+            color: var(--text-accent);
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }
 
-<script type="module">
-  import "./engine/engine.js";
-</script>
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-main);
+            margin-bottom: 30px;
+            font-style: italic;
+        }
 
-</body>
-</html>
+        /* --- 角色介紹區 (左右佈局) --- */
+        .cp-profile {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .character {
+            flex: 1;
+            min-width: 2
