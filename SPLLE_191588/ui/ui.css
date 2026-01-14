@@ -40,7 +40,7 @@ html, body {
     position: absolute;
     bottom: calc(var(--dialogue-height) + var(--dialogue-bottom));
     width: 100%;
-    height: 50%; /* 依照您的要求保持 50% */
+    height: 50%; 
     pointer-events: none;
     z-index: 5;
     overflow: hidden; 
@@ -94,7 +94,7 @@ html, body {
 /* 返回按鈕 (保持 120px 位置) */
 #back-btn {
     position: absolute;
-    top: 120px; /* 依照您的要求保持 120px */
+    top: 120px; 
     left: 15px; 
     width: 24px;
     height: 24px;
@@ -120,8 +120,12 @@ html, body {
     overflow-y: auto;
 }
 
+/* 對話框內捲軸美化 */
+#dialogue-text::-webkit-scrollbar { width: 4px; }
+#dialogue-text::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+
 /* ============================================================
-   📜 LOG 視窗 (背景與文字美化)
+   📜 LOG 視窗
    ============================================================ */
 #log-window {
     display: none; 
@@ -153,13 +157,41 @@ html, body {
     animation: fadeInWindow 0.4s ease-out;
 }
 
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 40px;
+    background: rgba(248, 247, 245, 0.8);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* 文字內容容器 - 開啟捲動 */
+#log-content {
+    flex: 1;
+    padding: 30px 40px;
+    overflow-y: auto;       /* 核心：開啟垂直滑動 */
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* LOG 捲軸美化 */
+#log-content::-webkit-scrollbar { width: 6px; }
+#log-content::-webkit-scrollbar-track { background: transparent; }
+#log-content::-webkit-scrollbar-thumb { 
+    background: rgba(197, 160, 89, 0.3); 
+    border-radius: 10px; 
+}
+#log-content::-webkit-scrollbar-thumb:hover { background: var(--champagne-gold); }
+
 .log-entry {
     margin-bottom: 24px;
     padding: 15px 20px;
     background: rgba(0, 0, 0, 0.02);
     border-radius: 12px;
     display: flex;
-    flex-direction: column; /* 名字在上內容在下 */
+    flex-direction: column;
 }
 
 .log-name {
@@ -178,27 +210,34 @@ html, body {
     padding-left: 14px;
 }
 
-/* 關閉按鈕與通用按鈕樣式 */
-#close-log-btn, #log-btn, #chapter-btn {
+/* 關閉按鈕與控制項 */
+#close-log-btn {
+    background: white;
+    color: var(--text-sub);
+    border: 1px solid rgba(0,0,0,0.1);
+    padding: 8px 24px;
     border-radius: 50px;
     cursor: pointer;
-    font-weight: 600;
 }
+
+#close-log-btn:hover { background: var(--champagne-gold); color: white; }
 
 #log-btn, #chapter-btn {
     position: absolute;
     top: 20px;
     padding: 8px 20px;
     background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    border-radius: 50px;
+    border: 1px solid rgba(0,0,0,0.05);
     z-index: 200;
 }
 
 #log-btn { left: 20px; }
 #chapter-btn { right: 20px; }
 
-@keyframes fadeInWindow {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
+/* 動畫定義 */
+@keyframes fadeInWindow { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
 [hidden] { display: none !important; }
