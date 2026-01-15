@@ -8,7 +8,7 @@ export const characters = {
   "白井　波": {
     side: "right",
     sprites: {
-      normal: "assets/char/popo.png"
+      normal: "assets/char/mipm.png"
     }
   }
 };
