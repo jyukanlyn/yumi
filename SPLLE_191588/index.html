@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>くちくちにしましょうね</title>
-    <link rel="stylesheet" href="ui/ui.css">
+    <link rel="stylesheet" href="ui/ui.css"> 
     <link rel="icon" type="image/png" href="icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
@@ -12,74 +12,50 @@
 
 <div id="game-screen">
 
-    <button id="log-btn">LOG</button>
-    <button id="chapter-btn">章節</button>
+    <img id="event-image" hidden draggable="false" alt="Event">
 
-    <div id="log-window" hidden>
-        <div class="log-panel">
-            <div class="log-header">
-                <h2>LOG</h2>
-                <button id="close-log-btn">關閉</button>
-            </div>
-            <div id="log-content"></div>
-        </div>
-    </div>
-    
     <div id="avatar-container">
         <img id="avatar-left" class="avatar left" draggable="false" alt="">
         <img id="avatar-right" class="avatar right" draggable="false" alt="">
     </div>
 
     <div id="dialogue-box">
-        <img id="back-btn" src="assets/ui/back.png" alt="返回上一頁" draggable="false">
+        <img id="back-btn" src="assets/ui/back.png" alt="Back" draggable="false">
+
         <div id="name-plate"></div>
         <div id="dialogue-text"></div>
         
-        <div id="name-plate">角色名</div>
-    <div id="dialogue-text">對話內容...</div>
-    
-    <div class="menu-controls">
-        <button class="drop-btn" onclick="showLog()"><span>LOG</span></button>
-        <button class="drop-btn"><span>章節</span></button>
-    </div>
-    
-    <div id="back-btn">↩</div>
+        <div class="menu-controls ui-layer">
+            <button id="log-btn" class="ui-btn">LOG</button>
+            <button id="chapter-btn" class="ui-btn">章節</button>
+        </div>
     </div>
 
-    <div id="chapter-menu" hidden></div>
+    <div id="log-window" hidden>
+        <div class="log-panel ui-layer"> <div class="log-header">
+                <h2>LOG</h2>
+                <button id="close-log-btn">關閉</button>
+            </div>
+            <div id="log-content"></div>
+        </div>
+    </div>
+
+    <div id="chapter-menu" hidden class="ui-layer"></div>
 
 </div>
 
 <script>
-    // 錯誤監控
     window.onerror = function(message, source, lineno, colno, error) {
+        // 忽略 ResizeObserver loop limit exceeded 這種非致命錯誤
+        if (message.includes("ResizeObserver")) return;
         alert("💀 發生錯誤：\n" + message + "\n\n檔案：" + source + "\n行數：" + lineno);
-    };
-
-    // LOG 視窗邏輯
-    const logWindow = document.getElementById('log-window');
-    const logBtn = document.getElementById('log-btn');
-    const closeLogBtn = document.getElementById('close-log-btn');
-
-    // 打開 LOG
-    logBtn.onclick = () => { logWindow.hidden = false; };
-
-    // 監聽點擊事件：點擊全螢幕背景時關閉
-    logWindow.addEventListener('click', (event) => {
-        if (event.target === logWindow) {
-            logWindow.hidden = true;
-        }
-    });
-
-    // 關閉按鈕點擊
-    closeLogBtn.onclick = () => {
-        logWindow.hidden = true;
     };
 </script>
 
 <script type="module">
     import("./engine/engine.js").catch(e => {
-        alert("❌ 模組載入失敗！\n請檢查 engine.js 路徑。\n\n" + e);
+        console.error(e);
+        alert("❌ 模組載入失敗！\n請檢查 engine.js 路徑。\n\n詳細錯誤請按 F12 看 Console");
     });
 </script>
 
