@@ -2626,7 +2626,7 @@ export const scenario = [
 
 { speaker: "", text: `能夠潔淨一身的、被他擁入懷中。` },
 
-{ speaker: "[■■■] ■■■ ", text: ` 我大概還在夢裡。` },
+{ speaker: " ■■■ ", text: ` 我大概還在夢裡。` },
 
 { speaker: "", text: `陌生卻熟悉的廚房，記不起來是什麼時候了，器具擺放的位置與我的習慣相合——嗯？我學會做菜了嗎？啊，也可能是因為我在夢裡吧。` },
 
@@ -2638,7 +2638,7 @@ export const scenario = [
 
 { speaker: "", text: `我將鬆餅倒上盤子。` },
 
-{ speaker: "[■■■] ■■■ ", text: ` 我喜歡像■那樣的人。` },
+{ speaker: " ■■■ ", text: ` 我喜歡像■那樣的人。` },
 
 { speaker: "", text: `不是溫柔的人、也不是會說好聽話的戀人，而是■。` },
 
@@ -2646,7 +2646,7 @@ export const scenario = [
 
 { speaker: "", text: `我許下一輩子約定的人。即使下輩子，也會定下一樣的約定。` },
 
-{ speaker: "[■■■] ■■■ ", text: ` 在記憶的最後，完成了那場婚禮。` },
+{ speaker: " ■■■ ", text: ` 在記憶的最後，完成了那場婚禮。` },
 
 { speaker: "", text: `供奉純淨無瑕的身體，即使被擁抱也無法坦然地吐露愛意，哭泣著索要親吻，恍惚中慶幸著對方並沒有發現陰暗的自己。` },
 
@@ -2786,8 +2786,6 @@ export const scenario = [
 
 { speaker: " [ 灰野　雪之丞 ] SAN", text: `60 → 58` },
 
-{ speaker: "[■■■] ■■■ ", text: `` },
-
 { speaker: "Narrator ", text: ` 你沒有辦法確定剛剛發生了什麼。` },
 
 { speaker: "", text: `而匂巣村的故事已走到結局。` },
@@ -2808,4 +2806,4 @@ export const scenario = [
 { speaker: "Narrator ", text: ` END 「永遠を誓った人」` },
 
 { speaker: "[ss] 白井　波 ", text: ` CC<=70*5` },
-];
+  ];
