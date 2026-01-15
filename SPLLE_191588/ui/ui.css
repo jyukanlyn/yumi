@@ -83,7 +83,7 @@ html, body {
     height: var(--dialogue-height);
 
     /* 調整內距：頂部直接開始，底部預留空間給返回鍵 */
-    padding: 25px 45px 55px; 
+    padding: 25px 45px 55px 60px; 
 
     background: var(--glass-bg);
     backdrop-filter: blur(16px) saturate(140%);
