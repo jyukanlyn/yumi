@@ -10,6 +10,8 @@
     
     --dialogue-height: 180px; 
     --dialogue-bottom: 40px;
+    --back-btn-space: 48px; /* 返回按鈕佔用高度 */
+
 }
 
 /* ============================================================
@@ -80,29 +82,37 @@ html, body {
     transform: translateX(-50%);
     width: 90%;
     max-width: 960px;
-    height: var(--dialogue-height); 
+    height: var(--dialogue-height);
+
+    /* ⭐ 核心：上方多留空間給返回按鈕 */
+    padding: calc(25px + var(--back-btn-space)) 40px 25px;
+
     background: var(--glass-bg);
     backdrop-filter: blur(16px) saturate(140%);
     border-radius: 24px;
     border: 1px solid var(--glass-border);
     box-shadow: 0 12px 40px rgba(0,0,0,0.08);
-    padding: 25px 40px;
     box-sizing: border-box;
     z-index: 100;
     overflow: hidden; /* 固定高度，多餘文字進下一頁 */
+
 }
 
 /* 返回按鈕 */
 #back-btn {
     position: absolute;
-    top: 120px; 
-    left: 15px; 
+    top: 20px;
+    left: 20px;
     width: 24px;
     height: 24px;
-    z-index: 999;
+    z-index: 10;
     cursor: pointer;
-    filter: brightness(0) opacity(0.4); 
-    transition: all 0.2s ease;
+    filter: brightness(0) opacity(0.4);
+    transition: opacity 0.2s ease;
+}
+
+#back-btn:hover {
+    opacity: 0.7;
 }
 
 #name-plate {
@@ -112,12 +122,15 @@ html, body {
     margin-bottom: 5px;
 }
 
-#dialogue-text {
+   #dialogue-text {
     font-size: 1.15rem;
     line-height: 1.7;
     color: var(--text-main);
     white-space: pre-wrap;
-    overflow: hidden; /* 隱藏超過框的文字 */
+    overflow: visible; /* 讓 JS 控制顯示量 */
+    max-height: calc(
+    var(--dialogue-height) - 90px
+    );
 }
 
 /* ============================================================
