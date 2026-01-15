@@ -108,7 +108,7 @@ html, body {
 /* 對話文字區域 */
 #dialogue-text {
     font-size: 1.15rem;
-    line-height: 1.7;
+    line-height: 2;
     color: var(--text-main);
     white-space: pre-wrap;
     overflow: hidden;
