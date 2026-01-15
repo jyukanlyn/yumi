@@ -18,6 +18,14 @@ const ui = {
     backBtn: document.getElementById("back-btn"),
     eventImage: document.getElementById("event-image"), 
 };
+// ===== 分頁後清理頁首空行工具 =====
+function cleanPageStart(text) {
+    if (!text) return "";
+    return text
+        .replace(/^[\n\r]+/, "")  // 移除頁首所有換行
+        .replace(/^\s+/, "");     // 移除頁首空白
+}
+
 
 /* ============================================================
    🛠 工具函數：高度分頁處理
