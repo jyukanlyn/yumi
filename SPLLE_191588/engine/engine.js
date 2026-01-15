@@ -154,7 +154,7 @@ function nextStep() {
         // 使用高度偵測進行智慧分頁
         if (step.text && ui.textBox) {
             // 獲取對話框實際可顯示高度
-            const maxHeight = ui.textBox.clientHeight;
+            const maxHeight = 130; // 依你 UI 實際高度微調
             const pages = splitTextByHeight(step.text, maxHeight);
 
             step.text = pages.shift();
