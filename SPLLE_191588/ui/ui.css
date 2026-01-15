@@ -112,7 +112,7 @@ html, body {
     white-space: pre-wrap;
     overflow: hidden;
     /* 動態計算高度：總高 - 名字高度(36+12) - 底部 padding(62) - 頂部 padding(28) */
-    max-height: calc(var(--dialogue-height) - 150px);
+    max-height: calc(var(--dialogue-height) - 100px);
 }
 
 /* ⭐ 返回按鈕：固定在對話框左下角 */
