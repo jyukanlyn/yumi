@@ -22,23 +22,36 @@ const ui = {
 /* ============================================================
    🛠 工具函數：高度分頁處理
 ============================================================ */
+/* engine/engine.js */
+
 function splitTextByHeight(text, maxHeight) {
-    if (!ui.textBox) return [text]; // 防呆
+    if (!ui.textBox) return [text];
 
     const testBox = document.createElement("div");
-    // 複製對話框的實際樣式以進行精準測量
     const style = getComputedStyle(ui.textBox);
     
     testBox.style.position = "absolute";
     testBox.style.visibility = "hidden";
-    // 重要：強制設定寬度與 padding，確保測量準確
-    testBox.style.width = ui.textBox.clientWidth + "px"; 
+    
+    // ✨✨✨ 關鍵修改 1：確保寬度完全一致 ✨✨✨
+    // 我們直接複製 offsetWidth (包含 border + padding + content)
+    // 然後強制設定 box-sizing 為 border-box，這樣寬度計算才不會錯
+    testBox.style.width = ui.textBox.offsetWidth + "px"; 
+    testBox.style.boxSizing = "border-box"; 
+    
+    // 複製關鍵字體樣式
     testBox.style.font = style.font;
+    testBox.style.fontFamily = style.fontFamily; // 保險起見多加這行
     testBox.style.fontSize = style.fontSize;
     testBox.style.lineHeight = style.lineHeight;
     testBox.style.letterSpacing = style.letterSpacing;
-    testBox.style.padding = style.padding;
-    testBox.style.boxSizing = "border-box"; // 強制 border-box
+    
+    // ✨✨✨ 關鍵修改 2：複製 padding ✨✨✨
+    testBox.style.paddingTop = style.paddingTop;
+    testBox.style.paddingBottom = style.paddingBottom;
+    testBox.style.paddingLeft = style.paddingLeft;
+    testBox.style.paddingRight = style.paddingRight;
+
     testBox.style.whiteSpace = "pre-wrap";
     testBox.style.wordBreak = "break-all";
     
@@ -51,30 +64,21 @@ function splitTextByHeight(text, maxHeight) {
         current += text[i];
         testBox.textContent = current;
 
-        // 如果高度超過限制
-        if (testBox.scrollHeight > maxHeight) {
-            // 把最後一個字扣掉（因為加上它才爆掉的）
+        // ✨✨✨ 關鍵修改 3：預留一點緩衝空間 (-10px) ✨✨✨
+        // 讓測量稍微保守一點，寧願早一點換頁，也不要被切掉
+        if (testBox.scrollHeight > (maxHeight - 10)) { 
             const page = current.slice(0, -1);
             pages.push(cleanPageStart(page));
-            // 這個字留給下一頁
             current = text[i];
         }
     }
 
-    // 處理剩下的最後一段
-    // ⚠️ 修正：這裡原本有全形括號，已修正為半形
     if (current.trim()) {
         pages.push(cleanPageStart(current));
     }
     
     document.body.removeChild(testBox);
     return pages;
-}
-
-function cleanPageStart(text) {
-    return text
-        .replace(/^[\n\r]+/, "")   // 移除開頭所有換行
-        .replace(/^\s+/, "");      // 移除開頭空白
 }
 
 /* ============================================================
