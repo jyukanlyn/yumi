@@ -1,5 +1,5 @@
 /* ============================================================
-   🎨 主題變數 (優雅香檳金風格)
+    🎨 主題變數 (優雅香檳金風格)
    ============================================================ */
 :root {
     --champagne-gold: #c5a059;
@@ -8,14 +8,12 @@
     --text-main: #1a1a1a;
     --text-sub: #5c554e;
     
-    --dialogue-height: 220px; 
+    --dialogue-height: 220px; /* 稍微增加高度以容納置頂名字與置底按鈕 */
     --dialogue-bottom: 40px;
-    --back-btn-space: 48px; /* 返回按鈕佔用高度 */
-
 }
 
 /* ============================================================
-   🖥 基礎重設
+    🖥 基礎重設
    ============================================================ */
 html, body {
     margin: 0;
@@ -36,7 +34,7 @@ html, body {
 }
 
 /* ===============================
-   👤 角色立繪 (保持 50% 大小)
+    👤 角色立繪 (保持 50% 大小)
    =============================== */
 #avatar-container {
     position: absolute;
@@ -73,7 +71,7 @@ html, body {
 }
 
 /* ============================================================
-   💬 對話框
+    💬 對話框 (名字置頂、返回鍵置底版)
    ============================================================ */
 #dialogue-box {
     position: absolute;
@@ -84,8 +82,8 @@ html, body {
     max-width: 960px;
     height: var(--dialogue-height);
 
-    /* ⭐ 核心：上方多留空間給返回按鈕 */
-    padding: calc(25px + var(--back-btn-space)) 40px 25px;
+    /* 調整內距：頂部直接開始，底部預留空間給返回鍵 */
+    padding: 25px 45px 55px; 
 
     background: var(--glass-bg);
     backdrop-filter: blur(16px) saturate(140%);
@@ -95,46 +93,49 @@ html, body {
     box-sizing: border-box;
     z-index: 100;
     overflow: hidden; /* 固定高度，多餘文字進下一頁 */
-
 }
 
-/* 返回按鈕 */
-#back-btn {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    width: 24px;
-    height: 24px;
-    z-index: 10;
-    cursor: pointer;
-    filter: brightness(0) opacity(0.4);
-    transition: opacity 0.2s ease;
-}
-
-#back-btn:hover {
-    opacity: 0.7;
-}
-
+/* ⭐ 名字欄：對話框內的最上方 */
 #name-plate {
-    font-size: 1.15rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 800;
     color: var(--champagne-gold);
-    margin-bottom: 5px;
+    margin-bottom: 12px;
+    display: block;
+    letter-spacing: 0.1em;
 }
 
-   #dialogue-text {
+/* 對話文字區域 */
+#dialogue-text {
     font-size: 1.15rem;
     line-height: 1.7;
     color: var(--text-main);
     white-space: pre-wrap;
-    overflow: visible; /* 讓 JS 控制顯示量 */
-    max-height: calc(
-    var(--dialogue-height) - 90px
-    );
+    overflow: hidden;
+    /* 動態計算高度：總高 - 名字高度 - 底部按鈕預留空間 */
+    max-height: calc(var(--dialogue-height) - 100px);
+}
+
+/* ⭐ 返回按鈕：移動到對話框左下角 */
+#back-btn {
+    position: absolute;
+    bottom: 18px; /* 距離底部 */
+    left: 25px;   /* 距離左側 */
+    width: 28px;
+    height: 28px;
+    z-index: 110;
+    cursor: pointer;
+    filter: brightness(0) opacity(0.3);
+    transition: all 0.2s ease;
+}
+
+#back-btn:hover {
+    filter: brightness(0) opacity(0.6);
+    transform: scale(1.1);
 }
 
 /* ============================================================
-   📜 LOG 視窗
+    📜 LOG 視窗
    ============================================================ */
 #log-window {
     display: none; 
@@ -175,7 +176,6 @@ html, body {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-/* 文字內容容器 - 開啟捲動 */
 #log-content {
     flex: 1;
     padding: 30px 40px;
@@ -185,7 +185,6 @@ html, body {
     animation: fadeInUp 0.6s ease-out;
 }
 
-/* LOG 捲軸美化 */
 #log-content::-webkit-scrollbar { width: 6px; }
 #log-content::-webkit-scrollbar-track { background: transparent; }
 #log-content::-webkit-scrollbar-thumb { 
@@ -219,7 +218,6 @@ html, body {
     padding-left: 14px;
 }
 
-/* 關閉按鈕與控制項 */
 #close-log-btn {
     background: white;
     color: var(--text-sub);
@@ -245,7 +243,6 @@ html, body {
 #log-btn { left: 20px; }
 #chapter-btn { right: 20px; }
 
-/* 動畫定義 */
 @keyframes fadeInWindow { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
