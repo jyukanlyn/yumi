@@ -16,50 +16,40 @@ const ui = {
     logContent: document.getElementById("log-content"),
     closeLogBtn: document.getElementById("close-log-btn"),
     backBtn: document.getElementById("back-btn"),
-    eventImage: document.getElementById("event-image"), 
+    eventImage: document.getElementById("event-image"),
+    // ✨ 新增：對話框容器，用於計算高度
+    dialogueBox: document.getElementById("dialogue-box"), 
 };
+
 // ===== 分頁後清理頁首空行工具 =====
 function cleanPageStart(text) {
     if (!text) return "";
-    return text
-        .replace(/^[\n\r]+/, "")  // 移除頁首所有換行
-        .replace(/^\s+/, "");     // 移除頁首空白
+    return text.replace(/^[\n\r]+/, "").replace(/^\s+/, "");
 }
-
 
 /* ============================================================
    🛠 工具函數：高度分頁處理
 ============================================================ */
-/* engine/engine.js */
-
 function splitTextByHeight(text, maxHeight) {
     if (!ui.textBox) return [text];
+
+    // ✨ 安全檢查：如果寬度異常，直接回傳原字串，避免當機
+    if (ui.textBox.offsetWidth === 0) return [text];
 
     const testBox = document.createElement("div");
     const style = getComputedStyle(ui.textBox);
     
     testBox.style.position = "absolute";
     testBox.style.visibility = "hidden";
-    
-    // ✨✨✨ 關鍵修改 1：確保寬度完全一致 ✨✨✨
-    // 我們直接複製 offsetWidth (包含 border + padding + content)
-    // 然後強制設定 box-sizing 為 border-box，這樣寬度計算才不會錯
     testBox.style.width = ui.textBox.offsetWidth + "px"; 
     testBox.style.boxSizing = "border-box"; 
     
-    // 複製關鍵字體樣式
     testBox.style.font = style.font;
-    testBox.style.fontFamily = style.fontFamily; // 保險起見多加這行
+    testBox.style.fontFamily = style.fontFamily;
     testBox.style.fontSize = style.fontSize;
     testBox.style.lineHeight = style.lineHeight;
     testBox.style.letterSpacing = style.letterSpacing;
-    
-    // ✨✨✨ 關鍵修改 2：複製 padding ✨✨✨
-    testBox.style.paddingTop = style.paddingTop;
-    testBox.style.paddingBottom = style.paddingBottom;
-    testBox.style.paddingLeft = style.paddingLeft;
-    testBox.style.paddingRight = style.paddingRight;
-
+    testBox.style.padding = style.padding; // ✨ 直接複製 padding shorthand 比較快
     testBox.style.whiteSpace = "pre-wrap";
     testBox.style.wordBreak = "break-all";
     
@@ -72,12 +62,17 @@ function splitTextByHeight(text, maxHeight) {
         current += text[i];
         testBox.textContent = current;
 
-        // ✨✨✨ 關鍵修改 3：預留一點緩衝空間 (-10px) ✨✨✨
-        // 讓測量稍微保守一點，寧願早一點換頁，也不要被切掉
+        // ✨ 緩衝空間邏輯維持你的 -10，這很好
         if (testBox.scrollHeight > (maxHeight - 10)) { 
-            const page = current.slice(0, -1);
-            pages.push(cleanPageStart(page));
-            current = text[i];
+            // 如果只有一個字就超高（字體過大），強制切分以免死循環
+            if (current.length === 1) {
+                 pages.push(current);
+                 current = "";
+            } else {
+                const page = current.slice(0, -1);
+                pages.push(cleanPageStart(page));
+                current = text[i];
+            }
         }
     }
 
@@ -98,7 +93,9 @@ function nextStep() {
     // 1. 處理隊列中的分頁內容
     if (state.textQueue && state.textQueue.length > 0) {
         const nextChunk = state.textQueue.shift();
-        const rawStep = scenario[state.index - 1]; // 獲取當前劇情的原始資料
+        // ✨ 這裡要特別小心：如果 textQueue 是上一句殘留的，要確認 index 是否正確
+        // 你的邏輯是用 scenario[state.index - 1] 抓取「正在播放的這一句」，這是正確的
+        const rawStep = scenario[state.index - 1]; 
         currentStepData = { ...rawStep, text: nextChunk };
     } 
     // 2. 讀取新劇情行
@@ -110,7 +107,7 @@ function nextStep() {
 
         let step = { ...scenario[state.index] };
 
-        // 存入 LOG 歷史（存完整原始文字）
+        // 存入 LOG 歷史
         if (state.index >= 0) {
             state.history.push({
                 index: state.index,
@@ -123,25 +120,23 @@ function nextStep() {
         state.textQueue = [];
 
         // 計算對話框可用高度並分頁
-        if (step.text && ui.textBox) {
-            const dialogueBox = document.getElementById("dialogue-box");
-            const boxStyle = getComputedStyle(dialogueBox);
+        if (step.text && ui.textBox && ui.dialogueBox) {
+            // ✨ 優化高度計算：不依賴 CSS 變數，改用實際高度扣除 padding
+            const boxStyle = getComputedStyle(ui.dialogueBox);
+            const totalHeight = ui.dialogueBox.clientHeight; // clientHeight 包含 padding 但不含 border
+            const paddingTop = parseFloat(boxStyle.paddingTop) || 0;
+            const paddingBottom = parseFloat(boxStyle.paddingBottom) || 0;
             
-            // 嘗試抓取 CSS 變數，如果抓不到就用 offsetHeight
-            let cssHeight = parseFloat(boxStyle.getPropertyValue("--dialogue-height"));
-            if (isNaN(cssHeight)) {
-                cssHeight = dialogueBox.offsetHeight;
-            }
-
-            // 扣除 UI 空間（名字與上下留白）
-            // 建議根據您的 padding 設定調整這裡的 130
-            let maxHeight = cssHeight - 100; 
+            // ✨ 自動計算可用內容高度，這裡假設文字框佔滿了 dialogue-box 的剩餘空間
+            // 如果你的名字框(name-plate)也在 dialogue-box 內，需要再扣除名字框高度
+            // 這裡保留你的 -100 做為安全緩衝，但建議檢查 CSS 結構
+            let maxHeight = totalHeight - paddingTop - paddingBottom - 40; 
             
-            if (isNaN(maxHeight) || maxHeight <= 60) maxHeight = 100; // 備用安全高度
+            if (isNaN(maxHeight) || maxHeight <= 60) maxHeight = 100;
 
             const pages = splitTextByHeight(step.text, maxHeight);
-            step.text = pages.shift(); // 顯示第一頁
-            state.textQueue = pages;   // 剩餘存入隊列
+            step.text = pages.shift(); 
+            state.textQueue = pages;
         }
 
         currentStepData = step;
@@ -149,10 +144,10 @@ function nextStep() {
 
     render(currentStepData);
 
-    // 存入返回堆疊（用於 Prev 按鈕）
+    // 存入返回堆疊
     state.backStack.push({
         index: state.index,
-        textQueue: [...state.textQueue],
+        textQueue: [...state.textQueue], // 複製陣列防止傳參考問題
         stepData: JSON.parse(JSON.stringify(currentStepData))
     });
 }
@@ -160,10 +155,10 @@ function nextStep() {
 function prevStep() {
     if (state.backStack.length <= 1) return;
 
-    state.backStack.pop(); // 彈出當前頁面
-    const prevSnapshot = state.backStack[state.backStack.length - 1];
+    state.backStack.pop(); // 彈出當前狀態
+    const prevSnapshot = state.backStack[state.backStack.length - 1]; // 讀取上一個狀態
 
-    // 如果退回的是新的劇情行，同步清理歷史記錄
+    // 如果退回的是新的劇情行（index 變小），同步清理歷史記錄
     if (state.index !== prevSnapshot.index) {
         state.history.pop();
     }
@@ -179,21 +174,21 @@ function render(step) {
     // 背景切換
     if (step.bg) changeBackground(step.bg);
 
-    // 名字標籤渲染與顏色適配
+    // 名字標籤渲染
     if (ui.namePlate) {
         if (step.speaker === "Narrator" || !step.speaker) {
             ui.namePlate.style.visibility = "hidden";
         } else {
             ui.namePlate.style.visibility = "visible";
             ui.namePlate.textContent = step.speaker;
-            ui.namePlate.classList.remove("right-side"); // 強制左側
+            
+            // ✨ 移除 right-side 樣式，統一顯示在左側
+            ui.namePlate.className = "name-plate"; 
             
             const charData = characters[step.speaker];
-            // 如果有自定義角色顏色則套用
             if (charData && charData.nameColor) {
                 ui.namePlate.style.color = charData.nameColor;
             } else {
-                // 預設顏色 (防止變數不存在變成黑色)
                 ui.namePlate.style.color = "var(--champagne-gold, #F0E68C)";
             }
         }
@@ -202,10 +197,10 @@ function render(step) {
     // 文字渲染
     if (ui.textBox) {
         ui.textBox.textContent = step.text || "";
-        ui.textBox.scrollTop = 0; // 換頁時捲動回頂部
+        ui.textBox.scrollTop = 0; 
     }
 
-    // 事件圖處理
+    // 事件圖
     if (ui.eventImage) {
         if (step.special === "dice") {
             ui.eventImage.src = "assets/effect/dice.png";
@@ -219,7 +214,7 @@ function render(step) {
 }
 
 /* ============================================================
-   功能模組：角色、背景與選單
+   功能模組
 ============================================================ */
 function changeBackground(bgID) {
     const bgPath = backgrounds[bgID];
@@ -229,7 +224,7 @@ function changeBackground(bgID) {
 }
 
 function updateCharacters(step) {
-    // 強制隱藏右側 (配合您的單立繪需求)
+    // 隱藏右側
     if (ui.avatarRight) {
         ui.avatarRight.style.display = "none";
         ui.avatarRight.classList.remove("active");
@@ -247,13 +242,11 @@ function updateCharacters(step) {
     const char = characters[step.speaker];
     if (char && char.sprites) {
         const emotion = step.emotion || "normal";
-        const targetAvatar = ui.avatarLeft; // 預設顯示在左側
-
-        if (char.sprites[emotion] && targetAvatar) {
-            targetAvatar.src = char.sprites[emotion];
-            targetAvatar.style.display = "block";
-            // 延遲觸發 active 以確保 CSS 動畫執行
-            setTimeout(() => targetAvatar.classList.add("active"), 10);
+        // ✨ 加上 ?. 保護，防止 sprites 物件不存在時報錯
+        if (char.sprites?.[emotion] && ui.avatarLeft) {
+            ui.avatarLeft.src = char.sprites[emotion];
+            ui.avatarLeft.style.display = "block";
+            setTimeout(() => ui.avatarLeft.classList.add("active"), 10);
         }
     }
 }
@@ -279,48 +272,11 @@ function showLog() {
     }, 50);
 }
 
-/* ============================================================
-   🚀 初始化
-============================================================ */
-function initGame() {
-    if (!ui.gameScreen) return;
-    
-    console.log("引擎啟動：高度分頁模式");
-
-    // 綁定選單按鈕
-    if (ui.chapterBtn) ui.chapterBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        setupChapterMenu(); // 確保每次點擊都重新生成（如果需要）
-        if(ui.chapterMenu) ui.chapterMenu.hidden = false;
-    });
-
-    if (ui.chapterMenu) ui.chapterMenu.addEventListener("click", () => {
-        ui.chapterMenu.hidden = true;
-    });
-
-    // 點擊全螢幕前進
-    ui.gameScreen.addEventListener("click", (e) => {
-        // 排除掉按鈕點擊，避免前進兩次
-        if (e.target.tagName === "BUTTON" || e.target.closest("#back-btn") || e.target.closest("#chapter-menu") || e.target.closest("#log-window")) return;
-        nextStep();
-    });
-
-    if (ui.logBtn) ui.logBtn.onclick = (e) => { e.stopPropagation(); showLog(); };
-    if (ui.closeLogBtn) ui.closeLogBtn.onclick = (e) => { e.stopPropagation(); ui.logWindow.hidden = true; };
-    if (ui.backBtn) ui.backBtn.onclick = (e) => { e.stopPropagation(); prevStep(); };
-
-    // 初始化第一步
-    if (state.index === 0 && scenario.length > 0) {
-        nextStep(); 
-    }
-}
-
-// 補上章節選單邏輯
+// 章節選單邏輯
 function setupChapterMenu() {
     if (!ui.chapterMenu) return;
     ui.chapterMenu.innerHTML = "<h2>章節選擇</h2>";
     
-    // 找出有 chapter 屬性的段落
     const chapters = scenario
         .map((step, index) => step.chapter ? { title: step.chapter, index } : null)
         .filter(Boolean);
@@ -340,11 +296,48 @@ function setupChapterMenu() {
 function jumpToChapter(index) {
     state.index = index;
     state.textQueue = [];
-    state.backStack = [];
+    state.backStack = []; // 跳轉章節通常會清空「上一步」的歷史
+    state.history = [];   // ✨ 選項：通常跳轉章節也會清空對話紀錄，看你需求
     if(ui.chapterMenu) ui.chapterMenu.hidden = true;
     nextStep();
 }
 
-});
+/* ============================================================
+   🚀 初始化
+============================================================ */
+function initGame() {
+    if (!ui.gameScreen) return;
+    
+    console.log("引擎啟動：高度分頁模式");
 
+    if (ui.chapterBtn) ui.chapterBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        setupChapterMenu(); 
+        if(ui.chapterMenu) ui.chapterMenu.hidden = false;
+    });
+
+    if (ui.chapterMenu) ui.chapterMenu.addEventListener("click", () => {
+        ui.chapterMenu.hidden = true;
+    });
+
+    ui.gameScreen.addEventListener("click", (e) => {
+        // ✨ 改進：使用 closest 檢查是否點擊到 UI 元素，避免誤觸
+        if (e.target.tagName === "BUTTON" || 
+            e.target.closest(".ui-layer") || // 假設按鈕都在 .ui-layer 內
+            e.target.closest("#chapter-menu") || 
+            e.target.closest("#log-window")) return;
+        nextStep();
+    });
+
+    if (ui.logBtn) ui.logBtn.onclick = (e) => { e.stopPropagation(); showLog(); };
+    if (ui.closeLogBtn) ui.closeLogBtn.onclick = (e) => { e.stopPropagation(); ui.logWindow.hidden = true; };
+    if (ui.backBtn) ui.backBtn.onclick = (e) => { e.stopPropagation(); prevStep(); };
+
+    // 初始化第一步
+    if (state.index === 0 && scenario.length > 0) {
+        nextStep(); 
+    }
+}
+
+// ✨ 這裡不要有 }); 
 initGame();
