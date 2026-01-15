@@ -7,7 +7,7 @@ export const state = {
   backStack: [],      // ✨ (必須有這行) 用來存「每一頁的狀態快照」，給上一頁功能專用
   chapter: 1,         // 目前章節
   flags: {},          // 選項或好感度
-  textQueue: []       // 還沒講完的文字
+  textQueue: [],       // 還沒講完的文字
   lastSpeaker: null,  // ✨ 新增這行：用來記憶上一位發言者
 };
 
