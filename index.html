@@ -4,237 +4,282 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>水天一碧</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- 全局變量與基礎設定 --- */
+        /* --- 大正浪漫配色定義 --- */
         :root {
-            --primary-pink: #ffb7c5;
-            --deep-pink: #e0849b;
-            --soft-white: rgba(255, 255, 255, 0.85);
-            /* 靜態版背景色稍微加強一點漸變層次 */
-            --bg-gradient: linear-gradient(135deg, #fff0f3 0%, #ffe6eb 50%, #ffd1dc 100%); 
-            --glass-bg: rgba(255, 255, 255, 0.45); /*稍微增加不透明度*/
-            --glass-border: rgba(255, 255, 255, 0.6);
-            --text-main: #5e4b52;
-            --text-accent: #d45d79;
+            --taisho-pink: #E8A7BB;   /* 略帶灰調的櫻花粉 */
+            --taisho-violet: #8A608C; /* 深紫藤色 */
+            --taisho-cream: #FDF9F1;  /* 米黃色復古紙張底色 */
+            --taisho-gold: #CCA46A;   /* 仿黃銅/燙金色 */
+            --text-dark: #4A3B45;     /* 深褐色文字 */
         }
 
+        /* --- 全局與背景設定 --- */
         body, html {
             margin: 0;
             padding: 0;
             width: 100%;
-            min-height: 100vh; /* 確保背景填滿 */
-            font-family: 'Noto Serif TC', serif;
-            background: var(--bg-gradient);
-            background-attachment: fixed; /* 讓背景固定，滾動時更有質感 */
-            color: var(--text-main);
+            min-height: 100vh;
+            font-family: 'Shippori Mincho', serif;
+            background-color: var(--taisho-cream);
+            color: var(--text-dark);
             overflow-x: hidden;
-        }
-
-        /* --- 主容器佈局 --- */
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 60px 20px; /* 增加頂部留白 */
-            text-align: center;
+            /* 背景疊加：漸變 + 日式傳統紋樣 (這裡使用 Base64 編碼的簡化青海波紋樣) */
+            background-image: 
+                linear-gradient(135deg, rgba(232, 167, 187, 0.3) 0%, rgba(138, 96, 140, 0.3) 100%),
+                url("data:image/svg+xml,%3Csvg width='60' height='30' viewBox='0 0 60 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10c5.523 0 10 4.477 10 10s-4.477 10-10 10S-10 25.523-10 20s4.477-10 10-10zm30 0c5.523 0 10 4.477 10 10s-4.477 10-10 10S20 25.523 20 20s4.477-10 10-10zm30 0c5.523 0 10 4.477 10 10s-4.477 10-10 10S50 25.523 50 20s4.477-10 10-10zm-15-10c5.523 0 10 4.477 10 10s-4.477 10-10 10S35 15.523 35 10s4.477-10 10-10zm30 0c5.523 0 10 4.477 10 10s-4.477 10-10 10S65 15.523 65 10s4.477-10 10-10zM15 0c5.523 0 10 4.477 10 10S20.523 20 15 20 5 15.523 5 10 9.477 0 15 0z' fill='%238A608C' fill-opacity='0.08' fill-rule='evenodd'/%3E%3C/svg%3E");
             position: relative;
-            z-index: 1;
         }
 
-        /* --- 毛玻璃卡片通用樣式 --- */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(255, 183, 197, 0.15);
+        /* 復古顆粒濾鏡層 */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: transparent;
+            /* 這裡可以用一張噪點圖片，簡單起見用半透明遮罩模擬 */
+            background: radial-gradient(circle, transparent 60%, rgba(74, 59, 69, 0.2) 100%);
+            z-index: 100;
+        }
+
+        /* --- 特效容器 --- */
+        #falling-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .petal {
+            position: absolute;
+            width: 15px;
+            height: 20px;
+            /* 使用 clip-path 製作簡單的花瓣形狀 */
+            clip-path: ellipse(50% 80% at 50% 50%);
+            opacity: 0.7;
+            animation: fall-sway linear infinite;
+        }
+        .petal.pink { background-color: var(--taisho-pink); }
+        .petal.violet { background-color: var(--taisho-violet); }
+
+        /* --- 主佈局容器 --- */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* --- 大正風卡片通用樣式 --- */
+        .retro-card {
+            background: var(--taisho-cream);
+            /* 雙重邊框：內細線，外金色裝飾框 */
+            border: 2px solid var(--taisho-gold);
+            outline: 4px solid rgba(204, 164, 106, 0.3);
+            outline-offset: 4px;
             padding: 40px;
-            margin-bottom: 40px;
-            /* 保留輕微的懸停上浮效果，讓頁面不至於死板 */
-            transition: transform 0.3s ease, box-shadow 0.3s ease; 
+            margin-bottom: 50px;
+            box-shadow: 10px 10px 0px rgba(74, 59, 69, 0.1); /* 復古的硬陰影 */
+            position: relative;
         }
 
-        .glass-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 40px 0 rgba(255, 183, 197, 0.25);
+        /* 裝飾性角落花紋 (使用偽元素模擬燙金角落) */
+        .retro-card::before, .retro-card::after {
+            content: "";
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--taisho-gold);
+            z-index: 2;
         }
+        .retro-card::before { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+        .retro-card::after { bottom: 10px; right: 10px; border-left: none; border-top: none; }
 
-        /* --- 標題區域 --- */
-        .hero-title {
-            font-family: 'Cinzel', serif;
-            font-size: 3.5rem;
-            color: var(--text-accent);
-            letter-spacing: 4px;
+
+        /* --- 標題區 --- */
+        .main-title {
+            font-size: 3rem;
+            text-align: center;
+            color: var(--taisho-violet);
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+            text-shadow: 2px 2px 0px var(--taisho-pink);
+            letter-spacing: 0.2em;
+        }
+        .sub-title {
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            border-top: 1px solid var(--taisho-gold);
+            border-bottom: 1px solid var(--taisho-gold);
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 auto 30px auto;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
-        .hero-subtitle {
-            font-size: 1.2rem;
-            color: var(--text-main);
-            margin-bottom: 30px;
-            font-style: italic;
-        }
-
-        /* --- 角色介紹區 (左右佈局) --- */
-        .cp-profile {
+        /* --- CP 角色介紹區 --- */
+        .cp-section {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 40px;
-            flex-wrap: wrap;
+            gap: 30px;
         }
 
-        .character {
+        .character-box {
             flex: 1;
-            min-width: 250px;
+            text-align: center;
+            padding: 20px;
+            border: 1px dashed var(--taisho-gold);
+            background: rgba(255, 255, 255, 0.5);
         }
 
-        .avatar {
-            width: 150px;
-            height: 150px;
+        .avatar-frame {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 20px auto;
+            padding: 5px;
+            border-radius: 50%;
+            /* 雙色邊框 */
+            border: 3px solid var(--taisho-gold);
+            box-shadow: 0 0 0 4px var(--taisho-pink) inset;
+        }
+        
+        .avatar-frame img {
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid white;
-            box-shadow: 0 4px 15px rgba(224, 132, 155, 0.3);
-            margin-bottom: 15px;
-            transition: transform 0.4s ease;
-        }
-
-        .avatar:hover {
-            transform: scale(1.05); /* 僅保留輕微放大，移除旋轉 */
+            /* 復古照片濾鏡 */
+            filter: sepia(0.3) contrast(0.9);
         }
 
         .char-name {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--deep-pink);
-            margin-bottom: 5px;
-        }
-
-        .char-desc {
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        /* --- 連接符號 (&) --- */
-        .ampersand {
-            font-family: 'Cinzel', serif;
-            font-size: 3rem;
-            color: var(--primary-pink);
-            opacity: 0.8;
-        }
-
-        /* --- 故事/語錄區 --- */
-        .quote-box {
-            font-size: 1.1rem;
-            line-height: 2;
-            border-left: 4px solid var(--primary-pink);
-            padding-left: 20px;
-            text-align: left;
-            margin-top: 20px;
-        }
-
-        /* --- 相冊/鏈接區 --- */
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .gallery-item {
-            height: 200px;
-            background-color: rgba(255, 255, 255, 0.7);
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--deep-pink);
+            font-size: 1.6rem;
             font-weight: bold;
-            font-family: 'Cinzel', serif;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid transparent;
+            margin-bottom: 10px;
         }
-        
-        .gallery-item:hover {
-            background-color: white;
-            color: var(--text-accent);
-            border-color: var(--primary-pink);
-            box-shadow: 0 5px 15px rgba(255, 183, 197, 0.4);
+        .char-a .char-name { color: var(--taisho-violet); }
+        .char-b .char-name { color: var(--taisho-pink); }
+
+        /* 中間的裝飾連接符 */
+        .cp-connector {
+            font-size: 2rem;
+            color: var(--taisho-gold);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        /* 豎排文字裝飾 */
+        .vertical-text-deco {
+            writing-mode: vertical-rl;
+            font-size: 0.9rem;
+            margin: 15px 0;
+            letter-spacing: 0.3em;
+            color: var(--taisho-violet);
+            border-left: 1px solid var(--taisho-pink);
+            padding-left: 5px;
         }
 
-        /* --- Footer --- */
+        /* --- 文字內容區 --- */
+        .content-text {
+            font-size: 1.1rem;
+            line-height: 2.2;
+            text-align: justify;
+            /* 模擬信箋線條背景 */
+            background-image: linear-gradient(transparent 95%, var(--taisho-pink) 95%);
+            background-size: 100% 2.2rem;
+            padding: 20px 40px;
+        }
+
+        /* --- 頁腳 --- */
         footer {
-            margin-top: 50px;
-            font-size: 0.8rem;
-            opacity: 0.7;
+            text-align: center;
+            font-size: 0.9rem;
+            padding: 40px 0;
+            color: var(--taisho-violet);
+            /* 裝飾性分隔線 */
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 10 Q 25 0, 50 10 T 100 10' stroke='%23CCA46A' fill='none'/%3E%3C/svg%3E");
+            background-repeat: repeat-x;
+            background-position: center top;
+            padding-top: 30px;
         }
 
-        /* --- 手機適配 --- */
-        @media (max-width: 600px) {
-            .hero-title { font-size: 2.5rem; }
-            .cp-profile { flex-direction: column; }
-            .ampersand { transform: rotate(90deg); margin: 10px 0; }
+        /* --- 動畫定義 --- */
+        @keyframes fall-sway {
+            0% {
+                transform: translateY(-10vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            20% { opacity: 1; }
+            100% {
+                transform: translateY(105vh) translateX(20px) rotate(360deg);
+                opacity: 0.3;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .cp-section { flex-direction: column; }
+            .cp-connector { transform: rotate(90deg); margin: 20px 0; }
+            .vertical-text-deco { display: none; } /* 手機版隱藏豎排裝飾 */
+            .main-title { font-size: 2.2rem; }
         }
     </style>
 </head>
 <body>
 
+    <div id="falling-container"></div>
+
     <div class="container">
-        <header class="glass-card">
-            <h1 class="hero-title">Character A & Character B</h1>
-            <p class="hero-subtitle">"In the cherry blossom rain, I found you."</p>
-            <div style="font-size: 20px; color: var(--deep-pink);">❤︎</div>
+        <header class="retro-card" style="text-align: center; padding-bottom: 20px;">
+            <h1 class="main-title">水天一碧</h1>
+            <div class="sub-title">「在那個西風東漸的浪漫年代，與你相遇。」</div>
         </header>
 
-        <section class="glass-card">
-            <div class="cp-profile">
-                <div class="character">
-                    <img src="https://via.placeholder.com/150/ffcfe0/ffffff?text=A" alt="Character A" class="avatar">
-                    <div class="char-name">攻方名字</div>
-                    <div class="char-desc">
-                        性格關鍵詞 / 屬性<br>
-                        這裡可以寫一段簡短的角色介紹，<br>或者是他對另一半的看法。
+        <section class="retro-card">
+            <div class="cp-section">
+                <div class="character-box char-a">
+                    <div class="avatar-frame" style="box-shadow: 0 0 0 4px var(--taisho-violet) inset;">
+                        <img src="https://via.placeholder.com/160/8A608C/ffffff?text=Role+A" alt="Role A">
                     </div>
+                    <div class="char-name">灰野　雪之丞</div>
+                    <p>帝國大學學生。</p>
                 </div>
 
-                <div class="ampersand">&times;</div>
+                <div class="cp-connector">
+                    <span style="font-size: 3rem;">×</span>
+                    <div class="vertical-text-deco">運命の赤い糸</div>
+                </div>
 
-                <div class="character">
-                    <img src="https://via.placeholder.com/150/ffcfe0/ffffff?text=B" alt="Character B" class="avatar">
-                    <div class="char-name">受方名字</div>
-                    <div class="char-desc">
-                        性格關鍵詞 / 屬性<br>
-                        這裡可以寫一段簡短的角色介紹，<br>或者是他對另一半的看法。
+                <div class="character-box char-b">
+                    <div class="avatar-frame" style="box-shadow: 0 0 0 4px var(--taisho-pink) inset;">
+                        <img src="https://via.placeholder.com/160/E8A7BB/ffffff?text=Role+B" alt="Role B">
                     </div>
+                    <div class="char-name">白井　波</div>
+                    <p>gfgfdgfdg。</p>
                 </div>
             </div>
         </section>
 
-        <section class="glass-card" style="text-align: left;">
-            <h2 style="color: var(--text-accent); text-align: center; margin-bottom: 20px;">Our Story</h2>
-            <div class="quote-box">
-                <p>這裡是放置 CP 金句、原作名台詞或者是同人短文摘要的地方。</p>
-                <p>已移除動態特效，頁面更加安靜、專注於文字展示。</p>
+        <section class="retro-card">
+            <h2 style="text-align: center; color: var(--taisho-gold); margin-bottom: 30px;">── 追憶の斷片 ──</h2>
+            <div class="content-text">
+                <p>那是一個櫻花與煤氣燈交織的黃昏。銀座的街道上，留聲機裡播放著有些雜音的爵士樂。</p>
+                <p>「今晚的月色真美，不是嗎？」薰輕聲說道，目光沒有看向櫻子，而是投向了被夕陽染成紫羅蘭色的天空。</p>
+                <p>櫻子停下了擦拭咖啡杯的手，臉頰泛起了比身上和服還要鮮豔的粉色。「是的，先生。彷彿夢境一般。」</p>
+                <p>（這裡的背景線條模擬了舊時信箋的感覺，非常適合用來展示小說片段或語錄。）</p>
             </div>
         </section>
 
-        <section class="glass-card">
-            <h2 style="color: var(--text-accent); margin-bottom: 20px;">Gallery & Logs</h2>
-            <div class="gallery-grid">
-                <div class="gallery-item">Illustrations</div>
-                <div class="gallery-item">Novels</div>
-                <div class="gallery-item">Chat Logs</div>
-            </div>
-        </section>
-
-        <footer>
-            Created with Love | Designed for [CP Name]
-        </footer>
-    </div>
-
-</body>
-</html>
