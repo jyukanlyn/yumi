@@ -17,7 +17,7 @@ export const backgrounds = {
   // 格式 -> 場景ID: "圖片相對路徑"
   
   // 您的範例
-  room: "assets/bg/room.png",
+  room: "assets/bg/ex.png",
   
 
 };
