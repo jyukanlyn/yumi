@@ -8,6 +8,7 @@ export const state = {
   chapter: 1,         // 目前章節
   flags: {},          // 選項或好感度
   textQueue: []       // 還沒講完的文字
+  lastSpeaker: null,  // ✨ 新增這行：用來記憶上一位發言者
 };
 
 // 背景圖片對照表 (註冊場景 ID 對應的路徑)

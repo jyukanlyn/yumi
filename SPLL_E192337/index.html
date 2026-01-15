@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>くちくちにしましょうね</title>
+    <title>ex-lover</title>
     <link rel="stylesheet" href="ui/ui.css">
     <link rel="icon" type="image/png" href="icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,6 +30,8 @@
         <img id="avatar-right" class="avatar right" draggable="false" alt="">
     </div>
 
+    <img id="event-image" draggable="false" hidden>
+
     <div id="dialogue-box">
         <img id="back-btn" src="assets/ui/back.png" alt="返回上一頁" draggable="false">
         <div id="name-plate"></div>
@@ -41,33 +43,13 @@
 </div>
 
 <script>
-    // 錯誤監控
     window.onerror = function(message, source, lineno, colno, error) {
         alert("💀 發生錯誤：\n" + message + "\n\n檔案：" + source + "\n行數：" + lineno);
-    };
-
-    // LOG 視窗邏輯
-    const logWindow = document.getElementById('log-window');
-    const logBtn = document.getElementById('log-btn');
-    const closeLogBtn = document.getElementById('close-log-btn');
-
-    // 打開 LOG
-    logBtn.onclick = () => { logWindow.hidden = false; };
-
-    // 監聽點擊事件：點擊全螢幕背景時關閉
-    logWindow.addEventListener('click', (event) => {
-        if (event.target === logWindow) {
-            logWindow.hidden = true;
-        }
-    });
-
-    // 關閉按鈕點擊
-    closeLogBtn.onclick = () => {
-        logWindow.hidden = true;
     };
 </script>
 
 <script type="module">
+    // 這裡原本只負責載入，不需要寫按鈕邏輯，engine.js 會處理
     import("./engine/engine.js").catch(e => {
         alert("❌ 模組載入失敗！\n請檢查 engine.js 路徑。\n\n" + e);
     });

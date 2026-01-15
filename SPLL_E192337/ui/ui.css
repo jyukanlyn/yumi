@@ -32,11 +32,12 @@ html, body {
         radial-gradient(circle at 80% 30%, rgba(var(--primary-rgb),0.15), transparent 55%),
         linear-gradient(180deg, #f7fbfc 0%, #edf5f7 100%);
     overflow: hidden;
-    cursor: default; /* 預設滑鼠 */
+    cursor: default;
+    user-select: none; /* 防止選取文字 */
 }
 
 /* ============================================================
-   🎮 遊戲畫面
+   🎮 遊戲畫面容器
 ============================================================ */
 #game-screen {
     position: relative;
@@ -44,9 +45,10 @@ html, body {
     height: 100vh;
     background-size: cover;
     background-position: center;
+    overflow: hidden;
 }
 
-/* 水彩霧層 */
+/* 水彩霧層濾鏡 */
 #game-screen::after {
     content: "";
     position: absolute;
@@ -61,17 +63,18 @@ html, body {
 
 /* ============================================================
    💧 點擊特效（全域水滴）
-   需搭配 JS 在點擊處生成 <div class="click-ripple"></div>
+   由 JS 動態生成 <div class="click-ripple"></div>
 ============================================================ */
 .click-ripple {
     position: fixed;
     border-radius: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
+    /* 精緻的水波紋漸層 */
     background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(var(--primary-rgb), 0.4) 40%, transparent 70%);
     box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.2);
     animation: rippleAnim 0.8s ease-out forwards;
-    z-index: 9999;
+    z-index: 9999; /* 確保在最上層 */
 }
 
 @keyframes rippleAnim {
@@ -89,23 +92,26 @@ html, body {
 
 /* ============================================================
    👤 角色立繪（柔焦＋夢境呼吸）
+   Z-index: 5
 ============================================================ */
 #avatar-container {
     position: absolute;
-    bottom: calc(var(--dialogue-height) + var(--dialogue-bottom));
+    bottom: calc(var(--dialogue-height) + var(--dialogue-bottom) - 80px); /* 讓立繪稍微延伸到對話框後方 */
     width: 100%;
-    height: 50%;
+    height: 80%; /* 增加高度避免切頭 */
     pointer-events: none;
     z-index: 5;
     overflow: hidden;
+    display: flex;
+    justify-content: center; /* 預設置中，可依 left/right class 調整 */
 }
 
 .avatar {
     position: absolute;
-    bottom: -4px;
+    bottom: -20px;
     max-height: 100%;
     opacity: 0;
-    transform: translateY(10px) scale(0.97);
+    transform: translateY(20px) scale(0.97);
     transition:
         opacity 0.7s ease,
         transform 0.7s ease,
@@ -113,9 +119,10 @@ html, body {
     filter: saturate(0.95);
 }
 
-.avatar.left { left: 14%; }
-.avatar.right { right: 14%; }
+.avatar.left { left: 10%; } /* 調整位置避免太靠邊 */
+.avatar.right { right: 10%; }
 
+/* 啟動狀態：顯示並呼吸 */
 .avatar.active {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -137,7 +144,30 @@ html, body {
 }
 
 /* ============================================================
+   🎲 特殊事件圖 (如骰子、物品)
+   Z-index: 80 (在立繪上，對話框下)
+============================================================ */
+#event-image {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 80;
+    pointer-events: none;
+    max-width: 60%;
+    max-height: 60%;
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8));
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* ============================================================
    💬 對話框（水彩玻璃）
+   Z-index: 100
 ============================================================ */
 #dialogue-box {
     position: absolute;
@@ -165,7 +195,6 @@ html, body {
         inset 0 0 20px rgba(255,255,255,0.5);
 
     z-index: 100;
-    /* 這裡不能 overflow: hidden，因為按鈕要浮在邊緣 */
 }
 
 /* 右側裝飾性漣漪 */
@@ -200,70 +229,52 @@ html, body {
 }
 
 /* ============================================================
-   💧 選單按鈕 (LOG/Chapter) - 透明水滴樣式
+   💧 選單按鈕 (LOG/Chapter)
+   Z-index: 110 (浮在對話框上)
 ============================================================ */
-.menu-controls {
-    position: absolute;
-    top: -25px; /* 浮在對話框上方邊緣 */
-    right: 30px;
-    display: flex;
-    gap: 12px;
-    z-index: 110;
-}
+/* 這裡不需要 .menu-controls 容器樣式，因為按鈕是直接放在 #game-screen */
 
-.drop-btn {
+#log-btn, #chapter-btn {
+    position: absolute;
+    bottom: calc(var(--dialogue-height) + var(--dialogue-bottom) - 15px); /* 貼齊對話框頂部 */
+    z-index: 110;
+    
     appearance: none;
     border: none;
-    position: relative;
     width: 48px;
     height: 48px;
-    border-radius: 50% 50% 50% 4px; /* 水滴形狀：左下角微尖，或者全圓 */
-    border-radius: 50%; /* 全圓露珠感更好 */
+    border-radius: 50%;
     
     /* 玻璃水滴質感 */
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(4px);
     border: 1px solid rgba(255, 255, 255, 0.6);
     box-shadow: 
-        inset 0 4px 6px rgba(255, 255, 255, 0.9), /* 頂部高光 */
-        inset 0 -4px 6px rgba(var(--primary-rgb), 0.2), /* 底部陰影 */
+        inset 0 4px 6px rgba(255, 255, 255, 0.9),
         0 4px 10px rgba(0,0,0,0.05);
     
     color: var(--text-sub);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* 彈跳效果 */
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* 按鈕文字 */
-.drop-btn span {
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    pointer-events: none;
-}
+#log-btn { right: 5%; }
+#chapter-btn { right: calc(5% + 60px); }
 
-/* 懸浮效果：更透亮並稍微上浮 */
-.drop-btn:hover {
-    background: rgba(255, 255, 255, 0.6);
+#log-btn:hover, #chapter-btn:hover {
+    background: rgba(255, 255, 255, 0.8);
     transform: translateY(-4px) scale(1.05);
     color: var(--primary-color);
-    box-shadow: 
-        inset 0 4px 8px rgba(255, 255, 255, 1),
-        0 8px 15px rgba(var(--primary-rgb), 0.25);
-    text-shadow: 0 0 5px rgba(255,255,255,0.8);
-}
-
-/* 按壓效果 */
-.drop-btn:active {
-    transform: translateY(0) scale(0.95);
+    box-shadow: 0 8px 15px rgba(var(--primary-rgb), 0.25);
 }
 
 /* ============================================================
-   ⭐ 名字欄（夢幻書籤感）
+   ⭐ 名字欄 & 對話文字
 ============================================================ */
 #name-plate {
     height: 36px;
@@ -278,15 +289,13 @@ html, body {
     display: inline-block;
 }
 
-/* ============================================================
-   📝 對話文字
-============================================================ */
 #dialogue-text {
     font-size: 1.15rem;
     line-height: 1.75;
     color: var(--text-main);
     white-space: pre-wrap;
     max-height: calc(var(--dialogue-height) - 100px);
+    overflow-y: hidden; /* 防止出現雙重捲軸 */
 }
 
 /* ============================================================
@@ -303,9 +312,7 @@ html, body {
     transition: all 0.3s ease;
     background: rgba(255,255,255,0.5);
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 5px; /* 增加一點點擊範圍 */
 }
 
 #back-btn:hover {
@@ -317,21 +324,17 @@ html, body {
 
 /* ============================================================
    📜 LOG 視窗（星砂紙質感）
+   Z-index: 2000
 ============================================================ */
 #log-window {
-    display: none;
     position: fixed;
     inset: 0;
-    /* 背景稍微深一點點，凸顯中間的紙張 */
     background: rgba(100, 115, 120, 0.2);
     backdrop-filter: blur(4px);
     z-index: 2000;
+    display: flex; /* 預設 flex，用 hidden 屬性控制顯示 */
     justify-content: center;
     align-items: center;
-}
-
-#log-window:not([hidden]) {
-    display: flex;
 }
 
 #log-window .log-panel {
@@ -339,24 +342,21 @@ html, body {
     height: 75%;
     max-width: 900px;
     
-    /* 星砂紙質感背景設定 */
+    /* 星砂紙質感 */
     background-color: #fafbfd;
     background-image: 
-        /* 微光星點 */
         radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,1), transparent),
         radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,1), transparent),
         radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,1), transparent),
         radial-gradient(2px 2px at 150px 100px, rgba(129, 199, 212, 0.4), transparent),
-        /* 紙張紋理雜訊 */
         repeating-linear-gradient(45deg, rgba(0,0,0,0.01) 0px, rgba(0,0,0,0.01) 2px, transparent 2px, transparent 4px);
-    
     background-size: 200px 200px, 200px 200px, 200px 200px, 200px 200px, auto;
     
     border-radius: 32px;
     border: 2px solid rgba(255, 255, 255, 0.8);
     box-shadow: 
         0 20px 50px rgba(0,0,0,0.1),
-        inset 0 0 60px rgba(255,255,255,0.8); /* 內發光，讓紙張感覺輕盈 */
+        inset 0 0 60px rgba(255,255,255,0.8);
 
     display: flex;
     flex-direction: column;
@@ -364,10 +364,18 @@ html, body {
     animation: floatIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+@keyframes floatIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .log-header {
     padding: 24px 40px;
     background: linear-gradient(to right, rgba(var(--primary-rgb),0.05), transparent);
     border-bottom: 1px dashed rgba(var(--primary-rgb), 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .log-header h2 {
@@ -377,16 +385,19 @@ html, body {
     letter-spacing: 0.1em;
 }
 
-/* 關閉按鈕 */
-.close-log {
-    float: right;
+#close-log-btn {
+    border: none;
+    background: transparent;
     cursor: pointer;
-    font-size: 1.5rem;
+    font-size: 1rem;
     color: var(--text-sub);
-    transition: transform 0.3s;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: all 0.2s;
 }
-.close-log:hover {
-    transform: rotate(90deg);
+
+#close-log-btn:hover {
+    background: rgba(var(--primary-rgb), 0.1);
     color: var(--primary-color);
 }
 
@@ -394,7 +405,6 @@ html, body {
     flex: 1;
     padding: 30px 50px;
     overflow-y: auto;
-    /* 卷軸樣式通常建議客製化，這裡保持簡潔 */
     scrollbar-width: thin;
     scrollbar-color: var(--primary-soft) transparent;
 }
@@ -402,7 +412,6 @@ html, body {
 .log-entry {
     margin-bottom: 24px;
     padding: 16px 22px;
-    /* 讓每條紀錄像浮在星砂紙上的水痕 */
     background: rgba(255,255,255,0.4); 
     border-left: 3px solid var(--primary-soft);
     border-radius: 4px 12px 12px 4px;
@@ -414,6 +423,7 @@ html, body {
 }
 
 .log-name {
+    display: block;
     color: var(--primary-color);
     font-weight: 800;
     margin-bottom: 6px;
@@ -427,11 +437,64 @@ html, body {
 }
 
 /* ============================================================
-   ✨ 動畫與輔助
+   📚 章節選單 (Chapter Menu)
+   Z-index: 200 (比對話框高，比 Log 低)
 ============================================================ */
-@keyframes floatIn {
-    from { opacity: 0; transform: translateY(20px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+#chapter-menu {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px;
+    max-height: 70vh;
+    overflow-y: auto;
+    
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--primary-water);
+    border-radius: 20px;
+    padding: 24px;
+    
+    z-index: 200;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: popIn 0.3s ease-out;
 }
 
-[hidden] { display: none !important; }
+#chapter-menu h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin: 0 0 16px 0;
+    font-size: 1.3rem;
+    padding-bottom: 12px;
+    border-bottom: 2px dotted var(--primary-soft);
+}
+
+.chapter-item {
+    padding: 14px 20px;
+    background: #f7fbfc;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: center;
+    color: var(--text-main);
+    transition: all 0.2s;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+
+.chapter-item:hover {
+    background: #fff;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.15);
+}
+
+/* ============================================================
+   🚫 隱藏屬性工具
+============================================================ */
+[hidden] {
+    display: none !important;
+}
