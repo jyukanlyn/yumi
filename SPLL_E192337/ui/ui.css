@@ -1,0 +1,329 @@
+/* ============================================================
+   🎨 主題變數（優雅霧藍・輕盈玻璃感）
+============================================================ */
+:root {
+    /* 主色：RGB(129,199,212) */
+    --primary-rgb: 129, 199, 212;
+    --primary-color: rgb(var(--primary-rgb));
+    --primary-soft: rgba(var(--primary-rgb), 0.25);
+    --primary-light: rgba(var(--primary-rgb), 0.15);
+
+    --glass-bg: rgba(255, 255, 255, 0.88);
+    --glass-border: rgba(255, 255, 255, 0.55);
+
+    --text-main: #1f2a30;
+    --text-sub: #5f737b;
+
+    --dialogue-height: 220px;
+    --dialogue-bottom: 40px;
+}
+
+/* ============================================================
+   🧱 基礎重設與畫面結構
+============================================================ */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: "PingFang TC", "Microsoft JhengHei", "Noto Serif TC", serif;
+    background: linear-gradient(
+        180deg,
+        #f7fbfc 0%,
+        #eef6f8 100%
+    );
+    overflow: hidden;
+}
+
+#game-screen {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+}
+
+/* ============================================================
+   👤 角色立繪（柔焦呼吸效果）
+============================================================ */
+#avatar-container {
+    position: absolute;
+    bottom: calc(var(--dialogue-height) + var(--dialogue-bottom));
+    width: 100%;
+    height: 50%;
+    pointer-events: none;
+    z-index: 5;
+    overflow: hidden;
+}
+
+.avatar {
+    position: absolute;
+    bottom: -6px;
+    max-height: 100%;
+    width: auto;
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+    transition:
+        opacity 0.6s ease,
+        transform 0.6s ease,
+        filter 0.6s ease;
+    transform-origin: bottom center;
+}
+
+.avatar.left { left: 15%; }
+.avatar.right { right: 15%; }
+
+.avatar.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    animation: breathe 5.5s ease-in-out infinite;
+    filter:
+        drop-shadow(0 -6px 18px rgba(0,0,0,0.06))
+        drop-shadow(0 0 25px var(--primary-light));
+}
+
+@keyframes breathe {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.018); }
+    100% { transform: scale(1); }
+}
+
+/* ============================================================
+   💬 對話框（優雅霧藍玻璃）
+============================================================ */
+#dialogue-box {
+    position: absolute;
+    left: 50%;
+    bottom: var(--dialogue-bottom);
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 960px;
+    height: var(--dialogue-height);
+    padding: 28px 52px 62px;
+    box-sizing: border-box;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(255,255,255,0.92),
+            rgba(245,252,255,0.88)
+        );
+    backdrop-filter: blur(18px) saturate(145%);
+    border-radius: 26px;
+    border: 1px solid var(--glass-border);
+
+    box-shadow:
+        0 14px 40px rgba(0,0,0,0.08),
+        inset 0 0 0 1px var(--primary-soft);
+
+    z-index: 100;
+    overflow: hidden;
+}
+
+/* ✦ 上緣柔光裝飾 */
+#dialogue-box::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--primary-color),
+        transparent
+    );
+    opacity: 0.6;
+}
+
+/* ============================================================
+   ⭐ 名字欄
+============================================================ */
+#name-plate {
+    height: 36px;
+    line-height: 36px;
+    margin-bottom: 12px;
+
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: var(--primary-color);
+
+    text-shadow: 0 0 12px var(--primary-light);
+}
+
+/* ============================================================
+   📝 對話文字
+============================================================ */
+#dialogue-text {
+    font-size: 1.15rem;
+    line-height: 1.75;
+    color: var(--text-main);
+    white-space: pre-wrap;
+    overflow: hidden;
+    max-height: calc(var(--dialogue-height) - 100px);
+}
+
+/* ============================================================
+   ↩ 返回按鈕（極簡霧感）
+============================================================ */
+#back-btn {
+    position: absolute;
+    bottom: 18px;
+    left: 25px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    z-index: 110;
+
+    filter: opacity(0.35);
+    transition: all 0.25s ease;
+}
+
+#back-btn:hover {
+    filter: opacity(0.7)
+            drop-shadow(0 0 8px var(--primary-soft));
+    transform: scale(1.15);
+}
+
+/* ============================================================
+   📜 LOG 視窗（柔霧沉浸）
+============================================================ */
+#log-window {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(30, 50, 60, 0.35);
+    backdrop-filter: blur(6px);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+#log-window:not([hidden]) {
+    display: flex;
+}
+
+#log-window .log-panel {
+    width: 80%;
+    height: 75%;
+    max-width: 900px;
+
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(28px);
+    border-radius: 32px;
+    border: 1px solid var(--glass-border);
+
+    box-shadow:
+        0 35px 70px rgba(0,0,0,0.25),
+        inset 0 0 0 1px var(--primary-light);
+
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    animation: fadeInWindow 0.45s ease-out;
+}
+
+.log-header {
+    padding: 24px 40px;
+    background: linear-gradient(
+        90deg,
+        rgba(var(--primary-rgb), 0.12),
+        rgba(255,255,255,0.7)
+    );
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+/* LOG 內容 */
+#log-content {
+    flex: 1;
+    padding: 30px 40px;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+}
+
+#log-content::-webkit-scrollbar { width: 6px; }
+#log-content::-webkit-scrollbar-thumb {
+    background: rgba(var(--primary-rgb), 0.35);
+    border-radius: 10px;
+}
+#log-content::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+.log-entry {
+    margin-bottom: 26px;
+    padding: 16px 22px;
+    background: rgba(0,0,0,0.025);
+    border-radius: 14px;
+}
+
+.log-name {
+    color: var(--primary-color);
+    font-weight: 800;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    border-left: 4px solid var(--primary-color);
+    padding-left: 12px;
+}
+
+.log-text {
+    color: var(--text-main);
+    font-size: 1.05rem;
+    line-height: 1.85;
+    padding-left: 16px;
+}
+
+/* ============================================================
+   🔘 頂部功能按鈕
+============================================================ */
+#log-btn,
+#chapter-btn {
+    position: absolute;
+    top: 20px;
+    padding: 8px 22px;
+
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    border: 1px solid rgba(0,0,0,0.05);
+
+    font-size: 0.9rem;
+    color: var(--text-sub);
+    cursor: pointer;
+    z-index: 200;
+
+    transition: all 0.25s ease;
+}
+
+#log-btn:hover,
+#chapter-btn:hover {
+    background: white;
+    color: var(--primary-color);
+    box-shadow:
+        0 6px 18px rgba(0,0,0,0.12),
+        inset 0 0 0 1px var(--primary-soft);
+}
+
+#log-btn { left: 20px; }
+#chapter-btn { right: 20px; }
+
+/* ============================================================
+   ✨ 輔助動畫
+============================================================ */
+@keyframes fadeInWindow {
+    from {
+        opacity: 0;
+        transform: scale(0.94);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+[hidden] {
+    display: none !important;
+}
