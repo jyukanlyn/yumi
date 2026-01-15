@@ -345,4 +345,23 @@ function jumpToChapter(index) {
     nextStep();
 }
 
+// 全域點擊水滴特效
+document.addEventListener('click', function(e) {
+    // 創建水滴元素
+    const ripple = document.createElement('div');
+    ripple.className = 'click-ripple';
+    
+    // 設定位置
+    ripple.style.left = e.clientX + 'px';
+    ripple.style.top = e.clientY + 'px';
+    
+    // 加入畫面
+    document.body.appendChild(ripple);
+    
+    // 動畫結束後移除元素 (0.8s 與 CSS 動畫時間一致)
+    setTimeout(() => {
+        ripple.remove();
+    }, 800);
+});
+
 initGame();
