@@ -19,13 +19,52 @@ const ui = {
     eventImage: document.getElementById("event-image"), 
 };
 
+// ===== 對話框高度分頁工具 =====
+function splitTextByHeight(text, maxHeight) {
+    const testBox = document.createElement("div");
+    testBox.style.position = "absolute";
+    testBox.style.visibility = "hidden";
+    testBox.style.pointerEvents = "none";
+    testBox.style.width = ui.textBox.clientWidth + "px";
+    
+    // 獲取目前的樣式以確保測量準確
+    const style = getComputedStyle(ui.textBox);
+    testBox.style.font = style.font;
+    testBox.style.lineHeight = style.lineHeight;
+    testBox.style.padding = style.padding;
+    testBox.style.boxSizing = style.boxSizing;
+    testBox.style.whiteSpace = "pre-wrap";
+    document.body.appendChild(testBox);
+
+    const pages = [];
+    let current = "";
+
+    // 逐字檢查高度
+    for (let i = 0; i < text.length; i++) {
+        current += text[i];
+        testBox.textContent = current;
+
+        if (testBox.scrollHeight > maxHeight) {
+            // 超過高度，存入目前內容（扣除最後一個字）
+            pages.push(current.slice(0, -1));
+            current = text[i];
+        }
+    }
+
+    if (current.trim()) pages.push(current);
+
+    document.body.removeChild(testBox);
+    return pages;
+}
+
 // ===== 文字清理與段落化 =====
 function formatText(rawText) {
     if (!rawText) return "";
     let clean = rawText.replace(/^\s+|\s+$/g, "");
     clean = clean.replace(/\n{3,}/g, "\n\n");
-    const paragraphs = clean.split(/\n+/).map(p => `<p>${p}</p>`);
-    return paragraphs.join("");
+    // 如果您希望保留原樣，可以直接傳回 clean
+    // 這裡包裝 <p> 會增加額外高度，如果使用 splitTextByHeight，建議直接顯示文字
+    return clean;
 }
 
 // --- 初始化系統 ---
@@ -69,6 +108,7 @@ function showLog() {
     ui.logContent.innerHTML = ""; 
 
     state.history.forEach(log => {
+        if (!log.text) return;
         const entry = document.createElement("div");
         entry.className = "log-entry";
         const nameHtml = (log.speaker && log.speaker !== "Narrator") 
@@ -85,19 +125,23 @@ function showLog() {
 }
 
 // --- 核心運作邏輯 ---
-const CHAR_LIMIT = 60;
 
 function nextStep() {
     let currentStepData = null;
 
+    // 1. 處理待顯示的隊列（分頁內容）
     if (state.textQueue && state.textQueue.length > 0) {
         const nextChunk = state.textQueue.shift();
         const rawStep = scenario[state.index - 1];
         currentStepData = { ...rawStep, text: nextChunk };
-    } else {
+    } 
+    // 2. 讀取新的劇情行
+    else {
         if (state.index >= scenario.length) return;
+
         let step = { ...scenario[state.index] };
 
+        // 存入完整對話到歷史紀錄
         state.history.push({
             index: state.index,
             speaker: step.speaker || "",
@@ -107,32 +151,22 @@ function nextStep() {
         state.index++;
         state.textQueue = [];
 
-        if (step.text && step.text.length > CHAR_LIMIT) {
-            const chunks = [];
-            let remaining = step.text;
-            while (remaining.length > 0) {
-                if (remaining.length <= CHAR_LIMIT) {
-                    chunks.push(remaining); break;
-                }
-                let chunkAttempt = remaining.substring(0, CHAR_LIMIT);
-                const punctuation = ["。","！","？","\n","……","⋯⋯","」"];
-                let bestSplitIndex = -1;
-                for (let p of punctuation) {
-                    const idx = chunkAttempt.lastIndexOf(p);
-                    if (idx > bestSplitIndex) bestSplitIndex = idx;
-                }
-                let finalCutIndex = (bestSplitIndex !== -1) ? bestSplitIndex + 1 : CHAR_LIMIT;
-                chunks.push(remaining.substring(0, finalCutIndex));
-                remaining = remaining.substring(finalCutIndex);
-            }
-            step.text = chunks.shift();
-            state.textQueue = chunks;
+        // 使用高度偵測進行智慧分頁
+        if (step.text && ui.textBox) {
+            // 獲取對話框實際可顯示高度
+            const maxHeight = ui.textBox.clientHeight;
+            const pages = splitTextByHeight(step.text, maxHeight);
+
+            step.text = pages.shift();
+            state.textQueue = pages;
         }
+
         currentStepData = step;
     }
 
     render(currentStepData);
 
+    // 存入返回堆疊（深拷貝以防狀態干擾）
     state.backStack.push({
         index: state.index,
         textQueue: [...state.textQueue],
@@ -159,6 +193,7 @@ function render(step) {
     if (!step) return;
     if (step.bg) changeBackground(step.bg);
 
+    // 渲染名字標籤
     if (ui.namePlate) {
         if (step.speaker === "Narrator") {
             ui.namePlate.style.display = "none";
@@ -176,11 +211,14 @@ function render(step) {
         }
     }
 
+    // 渲染對話文字
     if (ui.textBox) {
-        ui.textBox.innerHTML = formatText(step.text || "");
+        // 因為使用了 splitTextByHeight，我們直接渲染 text
+        ui.textBox.textContent = step.text || "";
         ui.textBox.scrollTop = 0;
     }
 
+    // 渲染特殊事件圖
     if (ui.eventImage) {
         if (step.special === "dice") {
             ui.eventImage.src = "assets/effect/dice.png";
