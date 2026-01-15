@@ -62,8 +62,6 @@ function formatText(rawText) {
     if (!rawText) return "";
     let clean = rawText.replace(/^\s+|\s+$/g, "");
     clean = clean.replace(/\n{3,}/g, "\n\n");
-    // 如果您希望保留原樣，可以直接傳回 clean
-    // 這裡包裝 <p> 會增加額外高度，如果使用 splitTextByHeight，建議直接顯示文字
     return clean;
 }
 
@@ -151,10 +149,19 @@ function nextStep() {
         state.index++;
         state.textQueue = [];
 
-        // 使用高度偵測進行智慧分頁
+        // --- ⭐ 修改處：動態計算對話框可顯示高度 ---
         if (step.text && ui.textBox) {
-            // 獲取對話框實際可顯示高度
-            const maxHeight = 130; // 依你 UI 實際高度微調
+            const dialogueBox = document.getElementById("dialogue-box");
+            const boxStyle = getComputedStyle(dialogueBox);
+            
+            // 從 CSS 抓取高度並減去 padding/UI 空間
+            let maxHeight = parseFloat(boxStyle.getPropertyValue("--dialogue-height")) - 90;
+            
+            // 安全機制：如果抓不到高度或數值異常，使用你指定的死高度 130
+            if (isNaN(maxHeight) || maxHeight <= 0) {
+                maxHeight = 130; 
+            }
+
             const pages = splitTextByHeight(step.text, maxHeight);
 
             step.text = pages.shift();
@@ -213,7 +220,6 @@ function render(step) {
 
     // 渲染對話文字
     if (ui.textBox) {
-        // 因為使用了 splitTextByHeight，我們直接渲染 text
         ui.textBox.textContent = step.text || "";
         ui.textBox.scrollTop = 0;
     }
