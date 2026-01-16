@@ -539,3 +539,19 @@ body {
 #name-plate {
   transition: background .6s ease, box-shadow .6s ease, color .6s ease;
 }
+
+/* 加入在 CSS 檔案最末端 */
+@media (max-width: 600px) {
+    #dialogue-box {
+        padding: 20px 24px 50px; /* 縮小 Padding 讓文字顯示區域變大 */
+        width: 94%; /* 增加寬度佔比 */
+    }
+    
+    #log-btn { right: 2%; }
+    #chapter-btn { right: calc(2% + 55px); }
+    
+    .avatar {
+        transform: translateY(20px) scale(0.85); /* 手機上立繪稍微縮小 */
+    }
+}
+
