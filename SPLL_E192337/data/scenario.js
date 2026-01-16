@@ -35,7 +35,7 @@ export const scenario = [
 
 {
   bg: "room",
-  theme: "scene2",
+  scene: "scene2",
   transition: "fade"
 
 },
