@@ -42,7 +42,6 @@ export const scenario = [
 
 { speaker: "白井　波", text: `` },
 
-
 { speaker: "Narrator", text: ` 回憶起17歲那年夏天，父母含淚對你說「明年就要嫁人了...」。` },
 
 { speaker: "", text: `那不是結婚，是作為神子的「嫁入儀式」。` },
@@ -53,7 +52,6 @@ export const scenario = [
 { speaker: "Narrator ", text: ` 聆聽` },
 
 { speaker: "白井　波", text: ` CC<=60 聆聽 (1D100<=60) 獎勵・懲罰骰[0] ＞ 92 ＞ 92 ＞ 失敗` },
-
 
 { speaker: "Narrator ", text: ` 聽見了「匂巢島」的名字。` },
 
