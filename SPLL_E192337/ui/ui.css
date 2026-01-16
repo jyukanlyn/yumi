@@ -2,32 +2,13 @@
   --dialogue-height: 200px;
   --radius: 22px;
   --blur: 12px;
-  --transition-fast: .25s ease;
-  --transition-slow: .6s ease;
 }
 
-/* ==============================
-   基本重置
-============================== */
+/* 基本重置 */
+* { box-sizing: border-box; margin:0; padding:0;}
+html, body { width:100%; height:100%; overflow:hidden; font-family:"Noto Serif TC", serif; background:#000; }
 
-* {
-  box-sizing: border-box;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-family: "Noto Serif TC", "Hiragino Mincho ProN", serif;
-  background: #000;
-}
-
-/* ==============================
-   遊戲畫面
-============================== */
-
+/* 遊戲畫面 */
 #game-screen {
   position: relative;
   width: 100%;
@@ -37,14 +18,11 @@ html, body {
   overflow: hidden;
 }
 
-/* ==============================
-   對話框本體
-============================== */
-
+/* 對話框 */
 #dialogue-box {
   position: absolute;
-  left: 50%;
   bottom: 24px;
+  left: 50%;
   transform: translateX(-50%);
   width: min(92%, 980px);
   height: var(--dialogue-height);
@@ -55,13 +33,20 @@ html, body {
   flex-direction: column;
   justify-content: flex-start;
   pointer-events: auto;
-  z-index: 40;
 }
 
-/* ==============================
-   名字板
-============================== */
+/* 返回鍵 */
+#back-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  z-index: 10;
+}
 
+/* 名字板 */
 #name-plate {
   font-size: 18px;
   margin-bottom: 6px;
@@ -69,10 +54,7 @@ html, body {
   user-select: none;
 }
 
-/* ==============================
-   對話文字
-============================== */
-
+/* 對話文字 */
 #dialogue-text {
   flex: 1;
   font-size: 17px;
@@ -81,12 +63,8 @@ html, body {
   white-space: pre-wrap;
 }
 
-/* ==============================
-   角色立繪
-============================== */
-
-#avatar-left,
-#avatar-right {
+/* 角色立繪 */
+.avatar {
   position: absolute;
   bottom: 0;
   height: 88%;
@@ -94,22 +72,11 @@ html, body {
   transform: translateY(20px);
   transition: opacity .6s ease, transform .6s ease;
   pointer-events: none;
-  z-index: 20;
 }
 
-#avatar-left { left: 5%; }
-#avatar-right { right: 5%; }
+.avatar.active { opacity:1; transform: translateY(0); }
 
-
-#avatar-left.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ==============================
-   右上控制列
-============================== */
-
+/* 控制列 */
 .menu-controls {
   position: absolute;
   top: 14px;
@@ -118,88 +85,55 @@ html, body {
   gap: 10px;
   z-index: 50;
 }
-
 .menu-controls button {
   background: rgba(255,255,255,.18);
-  border: none;
-  padding: 6px 14px;
-  border-radius: 999px;
-  color: #fff;
-  cursor: pointer;
+  border:none;
+  padding:6px 14px;
+  border-radius:999px;
+  color:#fff;
+  cursor:pointer;
   backdrop-filter: blur(6px);
   transition: background .25s ease, transform .25s ease;
 }
+.menu-controls button:hover { background: rgba(255,255,255,.35); transform:translateY(-2px); }
 
-.menu-controls button:hover {
-  background: rgba(255,255,255,.35);
-  transform: translateY(-2px);
-}
-
-/* ==============================
-   LOG 視窗
-============================== */
-
+/* LOG */
 #log-window {
   position: absolute;
   inset: 8%;
   padding: 24px;
-  border-radius: 26px;
+  border-radius:26px;
   backdrop-filter: blur(14px);
-  overflow: hidden;
-  z-index: 80;
+  overflow:hidden;
+  z-index:80;
 }
+#log-content { height:100%; overflow-y:auto; }
+.log-entry { margin-bottom:14px; }
+.log-name { font-weight:bold; margin-right:6px; }
 
-#log-content {
-  height: 100%;
-  overflow-y: auto;
-}
-
-.log-entry {
-  margin-bottom: 14px;
-}
-
-.log-name {
-  font-weight: bold;
-  margin-right: 6px;
-}
-
-/* ==============================
-   章節選單
-============================== */
-
+/* Chapter 選單 */
 #chapter-menu {
   position: absolute;
-  inset: 20%;
-  padding: 26px;
-  border-radius: 26px;
+  inset:20%;
+  padding:26px;
+  border-radius:26px;
   backdrop-filter: blur(14px);
-  z-index: 90;
+  z-index:90;
 }
+.chapter-item { padding:10px; cursor:pointer; }
 
-.chapter-item {
-  padding: 10px;
-  cursor: pointer;
-}
-
-/* ==============================
-   點擊水滴特效
-============================== */
-
+/* 點擊漣漪 */
 .click-ripple {
   position: fixed;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,.6);
-  transform: translate(-50%,-50%);
-  animation: ripple .8s ease-out forwards;
-  pointer-events: none;
-  z-index: 200;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.6);
+  transform:translate(-50%,-50%);
+  animation: ripple 0.8s ease-out forwards;
+  pointer-events:none;
+  z-index:200;
 }
-
 @keyframes ripple {
-  to {
-    transform: translate(-50%,-50%) scale(8);
-    opacity: 0;
-  }
+  to { transform:translate(-50%,-50%) scale(8); opacity:0; }
 }

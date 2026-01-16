@@ -1,66 +1,66 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <title>ex-lover</title>
-    <link rel="stylesheet" href="ui/ui.css">
-    <link rel="stylesheet" href="ui/scene1.css">
-    <link rel="stylesheet" href="ui/scene2.css">
-    <link rel="icon" type="image/png" href="icon.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    </head>
+  <meta charset="UTF-8">
+  <title>ex-lover</title>
+  <link rel="icon" type="image/png" href="icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- 核心 UI CSS -->
+  <link rel="stylesheet" href="ui/ui.css">
+
+  <!-- 場景 CSS -->
+  <link rel="stylesheet" href="ui/scene1.css">
+  <link rel="stylesheet" href="ui/scene2.css">
+</head>
 <body>
 
-<div id="game-screen" class="scene1">
+  <div id="game-screen" class="scene1">
 
-<div class="menu-controls">
-        <button id="log-btn">LOG</button>
-        <button id="chapter-btn">章節</button>
-    </div>
-
-    <div id="log-window" hidden>
-        <div class="log-panel">
-            <div class="log-header">
-                <h2>LOG</h2>
-                <button id="close-log-btn">關閉</button>
-            </div>
-            <div id="log-content"></div>
-        </div>
-    </div>
-    
+    <!-- 角色立繪 -->
     <div id="avatar-container">
-        <img id="avatar-left" class="avatar left" draggable="false" alt="">
-        <img id="avatar-right" class="avatar right" draggable="false" alt="">
+      <img id="avatar-left" class="avatar left" draggable="false" alt="">
+      <img id="avatar-right" class="avatar right" draggable="false" alt="">
     </div>
 
+    <!-- 特殊事件圖 -->
     <img id="event-image" draggable="false" hidden>
 
+    <!-- 對話框 -->
     <div id="dialogue-box">
-        <img id="back-btn" src="assets/ui/back.png" alt="返回上一頁" draggable="false">
-        <div id="name-plate"></div>
-        <div id="dialogue-text"></div>
+      <img id="back-btn" src="assets/ui/back.png" alt="返回上一頁" draggable="false">
+      <div id="name-plate"></div>
+      <div id="dialogue-text"></div>
     </div>
 
+    <!-- LOG / Chapter 按鈕 -->
+    <div class="menu-controls">
+      <button id="log-btn">LOG</button>
+      <button id="chapter-btn">章節</button>
+    </div>
+
+    <!-- LOG 視窗 -->
+    <div id="log-window" hidden>
+      <div class="log-panel">
+        <div class="log-header">
+          <h2>LOG</h2>
+          <button id="close-log-btn">關閉</button>
+        </div>
+        <div id="log-content"></div>
+      </div>
+    </div>
+
+    <!-- Chapter 選單 -->
     <div id="chapter-menu" hidden></div>
 
-</div>
+  </div>
 
-<script>
-    window.onerror = function(message, source, lineno, colno, error) {
-        // 過濾 ResizeObserver 雜訊
-        if (message && message.includes("ResizeObserver")) return;
-        alert("💀 發生錯誤：\n" + message + "\n\n檔案：" + source + "\n行數：" + lineno);
-    };
-</script>
-
-<script type="module">
+  <script type="module">
     import("./engine/engine.js").catch(e => {
-        alert("❌ 模組載入失敗！\n請檢查 engine.js 路徑。\n\n詳細錯誤請按 F12 看 Console\n" + e);
-        console.error(e);
+      console.error("模組載入失敗！", e);
+      alert("❌ 模組載入失敗！請檢查 engine.js 路徑。");
     });
-</script>
+  </script>
 
 </body>
 </html>
