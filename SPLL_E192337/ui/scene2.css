@@ -1,54 +1,64 @@
+/* ==========================
+   ui/scene2.css - 明亮風格覆寫
+   ========================== */
+
+/* 當父層 #game-screen 擁有 scene2 class 時生效 */
 .scene2 {
-  --primary-rgb:87,124,138;
-  --primary-color:rgb(var(--primary-rgb));
-  --primary-soft: rgba(var(--primary-rgb),0.28);
-  --primary-water: rgba(var(--primary-rgb),0.18);
-
-  --glass-bg: rgba(245,250,252,0.88);
-  --glass-border: rgba(255,255,255,0.45);
-  --text-main:#e6f2f5;
-  --text-sub:#9fb9c2;
+  --primary-rgb: 87,124,138;
+  --text-main: #20343c; /* 深色字 */
 }
 
-/* 場景2背景 */
+/* 1. 背景覆寫 */
 #game-screen.scene2 {
+  background-image: none; /* 移除原本圖片 */
   background:
-    radial-gradient(circle at 30% 15%, rgba(255,255,255,0.55), transparent 60%),
-    radial-gradient(circle at 75% 35%, rgba(87,124,138,0.22), transparent 55%),
+    radial-gradient(circle at 30% 15%, rgba(255,255,255,0.8), transparent 60%),
+    radial-gradient(circle at 75% 35%, rgba(87,124,138,0.2), transparent 55%),
     linear-gradient(180deg, #e8f1f4 0%, #dbe7ec 100%);
-  position:relative;
 }
 
-/* 對話框 */
-#dialogue-box.scene2 {
-  background: linear-gradient(135deg, rgba(20,35,40,.88), rgba(40,70,80,.82));
-  border:1px solid rgba(var(--primary-rgb),0.35);
-  box-shadow: 0 20px 60px rgba(0,0,0,.4), inset 0 0 25px rgba(255,255,255,.05);
+/* 2. 對話框覆寫 (注意選擇器寫法： .scene2 空格 #ID) */
+.scene2 #dialogue-box {
+  /* 改為淺色背景 */
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 30px rgba(87,124,138, 0.15);
+  backdrop-filter: blur(10px);
 }
 
-/* 漣漪擴大且呼吸 */
-#dialogue-box.scene2::after {
+/* 3. 裝飾性漣漪 */
+.scene2 #dialogue-box::after {
   content:"";
   position:absolute; right:-50px; bottom:-50px;
-  width:100%; height:100%;
+  width:300px; height:300px;
   border-radius:50%;
   pointer-events:none;
   z-index:-1;
   opacity:0.5;
-  background:
-    radial-gradient(circle, transparent 30%, rgba(var(--primary-rgb),0.1) 31%, transparent 35%),
-    radial-gradient(circle, transparent 50%, rgba(var(--primary-rgb),0.05) 51%, transparent 55%);
-  animation:ripple 6s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(87,124,138,0.1), transparent 70%);
+  animation: ripple 6s ease-in-out infinite;
 }
 
-/* 名字與文字 */
-#name-plate.scene2 { color: rgb(70,115,132); text-shadow:0 0 6px rgba(87,124,138,0.35); }
-#dialogue-text.scene2 { color:#20343c; }
-
-/* LOG /章節按鈕 */
-#log-btn.scene2,#chapter-btn.scene2 {
-  background: rgba(30,60,70,0.55);
-  border:1px solid rgba(var(--primary-rgb),0.4);
-  color:#cfe6ec;
+/* 4. 文字顏色覆寫 (淺色背景配深色字) */
+.scene2 #name-plate { 
+  color: rgb(70,115,132); 
 }
-#log-btn.scene2:hover,#chapter-btn.scene2:hover { background: rgba(255,255,255,0.85); color: rgb(87,124,138); box-shadow:0 0 18px rgba(87,124,138,0.35);}
+
+.scene2 #dialogue-text { 
+  color: var(--text-main); /* #20343c */
+}
+
+/* 5. 按鈕樣式覆寫 */
+.scene2 #log-btn, 
+.scene2 #chapter-btn {
+  background: rgba(255,255,255,0.6);
+  border: 1px solid rgba(87,124,138,0.3);
+  color: rgb(87,124,138);
+}
+
+.scene2 #log-btn:hover, 
+.scene2 #chapter-btn:hover {
+  background: rgb(87,124,138);
+  color: white;
+  box-shadow: 0 4px 12px rgba(87,124,138,0.3);
+}
