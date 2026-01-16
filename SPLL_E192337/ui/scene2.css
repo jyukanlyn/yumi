@@ -19,7 +19,7 @@
    🌫 背景紙感加深 (對應遊戲主畫面)
 ============================================================ */
 
-#game-screen {
+html, body {
     background:
         radial-gradient(circle at 30% 15%, rgba(255,255,255,0.55), transparent 60%),
         radial-gradient(circle at 75% 35%, rgba(87,124,138,0.22), transparent 55%),
