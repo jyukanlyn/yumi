@@ -29,15 +29,16 @@ export function switchScene(name) {
     ui.themeLink.href = `ui/${name}.css`;
   }
 
-  // 2. 更新容器 Class (用於轉場動畫或備用樣式)
+  // 2. 更新容器 Class 並清除殘留背景
   if (ui.gameScreen) {
     if (currentScene) ui.gameScreen.classList.remove(currentScene);
     ui.gameScreen.classList.add(name);
-  }
-  // ★★★ 新增這行：清除 JS 留下的背景圖，讓 CSS 背景能顯示出來 ★★★
+    
+    // ★★★ 清除 JS 留下的背景圖，讓 CSS 背景能顯示出來 ★★★
     ui.gameScreen.style.backgroundImage = ""; 
   }
   
+  // 更新當前場景變數 (必須在 function 括號內)
   currentScene = name;
 }
 
@@ -157,8 +158,6 @@ function prevStep() {
   // 如果這一步有切換場景，倒退時也要切換回去 (檢查 scene 屬性)
   if (prev.stepData.scene) {
     switchScene(prev.stepData.scene);
-  } else {
-    // 如果沒有 scene 屬性，可能需要還原到上一個已知的場景 (這裡視需求實作，暫不處理複雜回溯)
   }
 
   render(prev.stepData);
@@ -188,6 +187,7 @@ function render(step) {
 function changeBackground(bg) { 
   if (!backgrounds[bg]) return; 
   // 注意：這會改變 inline style，優先級高於 CSS class
+  // 如果這一行有執行，它會覆蓋掉 scene CSS 的背景
   ui.gameScreen.style.backgroundImage = `url('${backgrounds[bg]}')`; 
 }
 
@@ -271,7 +271,6 @@ function initGame() {
   });
 
   // 初始場景與開始
-  // 你可以改成 switchScene("scene1");
   switchScene("scene1"); 
   nextStep();
 }
