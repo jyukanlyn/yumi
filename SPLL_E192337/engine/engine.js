@@ -1,7 +1,7 @@
 /* engine/engine.js */
 import { scenario } from "../data/scenario.js";
 import { characters } from "../data/characters.js";
-import { state } from "./state.js"; // 注意：移除了 backgrounds 引用，因為改用 CSS class 切換
+import { state } from "./state.js";
 
 const ui = {
     namePlate: document.getElementById("name-plate"),
@@ -17,12 +17,14 @@ const ui = {
     closeLogBtn: document.getElementById("close-log-btn"),
     backBtn: document.getElementById("back-btn"),
     eventImage: document.getElementById("event-image"),
-    // ✨ 補回：需要這個來計算高度
     dialogueBox: document.getElementById("dialogue-box")
 };
 
+// ✨ 設定：打字速度 (毫秒) - 數字越小越快
+const TYPING_SPEED = 40; 
+
 // ============================================================
-// 1. 工具函數：高度分頁 (這是最核心的部分，不能省略)
+// 1. 工具函數
 // ============================================================
 function cleanPageStart(text) {
     if (!text) return "";
@@ -35,7 +37,6 @@ function splitTextByHeight(text, maxHeight) {
     const testBox = document.createElement("div");
     const style = getComputedStyle(ui.textBox);
     
-    // 複製樣式以進行測量
     testBox.style.position = "absolute";
     testBox.style.visibility = "hidden";
     testBox.style.width = ui.textBox.offsetWidth + "px"; 
@@ -69,19 +70,53 @@ function splitTextByHeight(text, maxHeight) {
     return pages;
 }
 
+// ✨ 新增：打字機效果函數
+function typeWriter(text) {
+    if (!ui.textBox) return;
+    
+    // 清空並重置狀態
+    ui.textBox.textContent = "";
+    state.isTyping = true;
+    state.currentFullText = text; // 存起來，給「瞬間顯示」用
+    
+    let i = 0;
+
+    function typingLoop() {
+        // 如果使用者點擊了跳過 (isTyping 變為 false)，這裡就不再執行
+        if (!state.isTyping) return;
+
+        if (i < text.length) {
+            ui.textBox.textContent += text.charAt(i);
+            i++;
+            // 記錄 Timer ID 以便可以被 clearTimeout 取消
+            state.typingTimer = setTimeout(typingLoop, TYPING_SPEED);
+        } else {
+            state.isTyping = false; // 打字完成
+        }
+    }
+
+    typingLoop();
+}
+
 // ============================================================
-// 2. 核心流程：下一步 (Next)
+// 2. 核心流程
 // ============================================================
 function nextStep() {
+    // ✨ 檢查：如果正在打字，則瞬間顯示全部，不進入下一句
+    if (state.isTyping) {
+        clearTimeout(state.typingTimer); // 停止計時器
+        ui.textBox.textContent = state.currentFullText; // 顯示全文
+        state.isTyping = false; // 標記為結束
+        return; // 停止函數
+    }
+
     let currentStepData = null;
 
-    // A. 讀取分頁隊列
     if (state.textQueue && state.textQueue.length > 0) {
         const nextChunk = state.textQueue.shift();
         const lastSnapshot = state.backStack[state.backStack.length - 1];
         currentStepData = { ...lastSnapshot.stepData, text: nextChunk };
     } 
-    // B. 讀取新的一行
     else {
         if (state.index >= scenario.length) {
             console.log("劇本結束");
@@ -90,7 +125,6 @@ function nextStep() {
 
         let rawStep = { ...scenario[state.index] };
         
-        // 發言者繼承邏輯
         let displaySpeaker = rawStep.speaker;
         if (!displaySpeaker && displaySpeaker !== "Narrator" && state.lastSpeaker) {
             displaySpeaker = state.lastSpeaker;
@@ -100,19 +134,17 @@ function nextStep() {
 
         let finalStep = { ...rawStep, speaker: displaySpeaker };
 
-        // 寫入 LOG
         state.history.push({ index: state.index, speaker: finalStep.speaker || "", text: finalStep.text || "" });
 
         state.index++;
         state.textQueue = [];
 
-        // 計算分頁
         if (finalStep.text && ui.textBox && ui.dialogueBox) {
             const boxStyle = getComputedStyle(ui.dialogueBox);
             const totalHeight = ui.dialogueBox.clientHeight;
             const pt = parseFloat(boxStyle.paddingTop) || 0;
             const pb = parseFloat(boxStyle.paddingBottom) || 0;
-            let maxHeight = totalHeight - pt - pb - 40; // 扣除 padding 和緩衝
+            let maxHeight = totalHeight - pt - pb - 40; 
             
             if (maxHeight > 60) {
                 const pages = splitTextByHeight(finalStep.text, maxHeight);
@@ -125,7 +157,6 @@ function nextStep() {
 
     render(currentStepData);
 
-    // 存入堆疊
     state.backStack.push({
         index: state.index,
         textQueue: [...state.textQueue],
@@ -133,10 +164,13 @@ function nextStep() {
     });
 }
 
-// ============================================================
-// 3. 核心流程：上一步 (Prev)
-// ============================================================
 function prevStep() {
+    // 如果正在打字，先停止
+    if (state.isTyping) {
+        clearTimeout(state.typingTimer);
+        state.isTyping = false;
+    }
+
     if (state.backStack.length <= 1) return;
 
     state.backStack.pop();
@@ -149,49 +183,54 @@ function prevStep() {
 
     state.index = prevSnapshot.index;
     state.textQueue = [...prevSnapshot.textQueue];
-    render(prevSnapshot.stepData);
+    
+    // ✨ 上一步我們通常希望直接顯示文字，不需要打字特效
+    // 所以這裡手動 Render 但不呼叫 typeWriter，或者讓 Render 判斷
+    // 這裡為了簡單，我們統一呼叫 render，但需要一個參數控制是否要特效
+    render(prevSnapshot.stepData, false); 
 }
 
 // ============================================================
-// 4. 渲染 (Render)
+// 3. 渲染
 // ============================================================
-function render(step) { 
+// ✨ 修改：增加 animate 參數，預設為 true
+function render(step, animate = true) { 
     if (!step) return;
 
-    // 背景 (改用您新的 switchScene 邏輯)
     if (step.bg) switchScene(step.bg);
 
-    // 名字
     if (ui.namePlate) {
         if (!step.speaker || step.speaker === "Narrator") {
             ui.namePlate.style.visibility = "hidden";
         } else {
             ui.namePlate.style.visibility = "visible";
             ui.namePlate.textContent = step.speaker;
-            // 顏色處理
             const charData = characters[step.speaker];
             ui.namePlate.style.color = (charData && charData.nameColor) ? charData.nameColor : "var(--primary-color)";
         }
     }
 
-    // 文字
-    if (ui.textBox) ui.textBox.textContent = step.text || "";
+    // ✨ 文字渲染邏輯修改
+    if (ui.textBox) {
+        if (animate && step.text) {
+            typeWriter(step.text); // 使用打字機
+        } else {
+            ui.textBox.textContent = step.text || ""; // 直接顯示 (用於 Prev 或讀檔)
+            state.isTyping = false;
+        }
+    }
 
-    // 事件圖
     if (ui.eventImage) {
         ui.eventImage.hidden = (step.special !== "dice");
         if (step.special === "dice") ui.eventImage.src = "assets/effect/dice.png";
     }
 
-    // 角色立繪
     updateCharacters(step);
 }
 
 function updateCharacters(step) {
-    // 隱藏右側 (單立繪模式)
     if (ui.avatarRight) { ui.avatarRight.style.display = "none"; ui.avatarRight.classList.remove("active"); }
     
-    // 旁白或無人說話時隱藏左側
     if (!step.speaker || step.speaker === "Narrator") {
         if (ui.avatarLeft) { 
             ui.avatarLeft.style.display = "none"; 
@@ -207,16 +246,12 @@ function updateCharacters(step) {
         const src = char.sprites[emotion];
         
         if (src) {
-            // 防止重複載入閃爍
             if (!ui.avatarLeft.src.includes(src)) {
                 ui.avatarLeft.src = src;
                 ui.avatarLeft.style.display = "block";
-                
-                // ✨ 關鍵修正：延遲添加 active class 以觸發 CSS transition
                 ui.avatarLeft.classList.remove("active");
                 setTimeout(() => ui.avatarLeft.classList.add("active"), 20);
             } else {
-                // 圖片相同，確保顯示
                 ui.avatarLeft.style.display = "block";
                 ui.avatarLeft.classList.add("active");
             }
@@ -225,7 +260,7 @@ function updateCharacters(step) {
 }
 
 // ============================================================
-// 5. 其他功能 (LOG, 選單, 特效)
+// 4. 其他功能
 // ============================================================
 function showLog() {
     if (!ui.logContent) return;
@@ -256,6 +291,9 @@ function setupChapterMenu() {
 }
 
 function jumpToChapter(index) { 
+    // 跳章節前先停止打字
+    if(state.isTyping) { clearTimeout(state.typingTimer); state.isTyping = false; }
+    
     state.index = index; 
     state.textQueue = []; 
     state.backStack = []; 
@@ -271,6 +309,7 @@ function switchScene(name) {
 }
 
 document.addEventListener('click', function(e) {
+    // 點擊特效
     const ripple = document.createElement('div'); 
     ripple.className = 'click-ripple';
     ripple.style.left = e.clientX + 'px'; 
@@ -280,22 +319,24 @@ document.addEventListener('click', function(e) {
 });
 
 // ============================================================
-// 6. 初始化
+// 5. 初始化
 // ============================================================
 function initGame() {
     if(!ui.gameScreen) return;
-    console.log("Engine Started: Compact & Functional");
+    console.log("Engine Started: Typewriter Effect Added");
 
     if(ui.chapterBtn) ui.chapterBtn.addEventListener("click", (e) => { e.stopPropagation(); setupChapterMenu(); if(ui.chapterMenu) ui.chapterMenu.hidden = false; });
     if(ui.chapterMenu) ui.chapterMenu.addEventListener("click", () => { ui.chapterMenu.hidden = true; });
     
+    // 畫面點擊
     if(ui.gameScreen) ui.gameScreen.addEventListener("click", (e) => {
-        // ✨ 補上 .menu-controls 檢查，防止按按鈕時觸發下一句
         if(e.target.tagName === "BUTTON" || 
            e.target.closest("#back-btn") || 
            e.target.closest("#chapter-menu") || 
            e.target.closest("#log-window") ||
            e.target.closest(".menu-controls")) return;
+        
+        // 核心：觸發下一步或瞬間顯示
         nextStep();
     });
 
