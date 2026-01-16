@@ -170,10 +170,11 @@ html, body {
    Z-index: 100
 ============================================================ */
 #dialogue-box {
-    position: absolute;
+    position: relative;
     left: 50%;
     bottom: var(--dialogue-bottom);
     transform: translateX(-50%);
+    overflow: hidden;
     width: 90%;
     max-width: 960px;
     height: var(--dialogue-height);
@@ -197,63 +198,51 @@ html, body {
     z-index: 100;
 }
 
-/* 右側裝飾性漣漪｜呼吸水波 */
+/* ============================================================
+   🌊 對話框整體水紋層（波浪感）
+============================================================ */
+
 #dialogue-box::after {
     content: "";
     position: absolute;
-    right: -80px;
-    bottom: -80px;
-    width: 320px;
-    height: 320px;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 0;
 
     background:
-        radial-gradient(circle at center,
-            rgba(var(--primary-rgb), 0.22) 0%,
-            rgba(var(--primary-rgb), 0.18) 8%,
-            transparent 22%
+        repeating-linear-gradient(
+            -12deg,
+            rgba(255,255,255,0.12) 0px,
+            rgba(255,255,255,0.18) 6px,
+            rgba(var(--primary-rgb),0.08) 12px,
+            rgba(255,255,255,0.12) 18px
         ),
-        radial-gradient(circle at center,
-            transparent 30%,
-            rgba(var(--primary-rgb), 0.14) 32%,
-            transparent 40%
-        ),
-        radial-gradient(circle at center,
-            transparent 48%,
-            rgba(var(--primary-rgb), 0.10) 50%,
-            transparent 58%
-        ),
-        radial-gradient(circle at center,
-            transparent 65%,
-            rgba(var(--primary-rgb), 0.06) 67%,
-            transparent 75%
-        );
+        radial-gradient(circle at 30% 40%, rgba(var(--primary-rgb),0.18), transparent 60%),
+        radial-gradient(circle at 70% 60%, rgba(255,255,255,0.35), transparent 65%);
 
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: -1;
-    opacity: 0.65;
+    background-size: 220% 220%;
+    mix-blend-mode: soft-light;
+    opacity: .55;
 
-    animation: rippleBreath 6s ease-in-out infinite;
+    filter: blur(0.6px);
+
+    animation:
+        waveFlow 18s linear infinite,
+        waveBreath 7s ease-in-out infinite;
 }
 
-/* 呼吸水波動畫 */
-@keyframes rippleBreath {
-    0% {
-        transform: scale(0.92);
-        opacity: 0.45;
-        filter: blur(0px);
-    }
-    50% {
-        transform: scale(1.05);
-        opacity: 0.75;
-        filter: blur(1.2px);
-    }
-    100% {
-        transform: scale(0.92);
-        opacity: 0.45;
-        filter: blur(0px);
-    }
+@keyframes waveFlow {
+    0%   { background-position: 0% 0%; }
+    100% { background-position: 220% 220%; }
 }
+
+@keyframes waveBreath {
+    0%   { opacity: .45; }
+    50%  { opacity: .65; }
+    100% { opacity: .45; }
+}
+
 
 
 /* 水彩邊緣暈染 */
