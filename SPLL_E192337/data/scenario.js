@@ -37,7 +37,6 @@ export const scenario = [
   bg: "room",
   scene: "scene2",
   transition: "fade"
-
 },
 
 { speaker: "白井　波", text: `` },
@@ -49,6 +48,7 @@ export const scenario = [
 { speaker: "", text: `你感到那是死別般的恐懼，因而逃離。` },
 
 { speaker: "", text: `現在是6月某日。你正獨自歸家。如果是1年前，或許正和來接你的雪之丞有說有笑。` },
+
 { speaker: "Narrator ", text: ` 聆聽` },
 
 { speaker: "白井　波", text: ` CC<=60 聆聽 (1D100<=60) 獎勵・懲罰骰[0] ＞ 92 ＞ 92 ＞ 失敗` },
@@ -72,6 +72,12 @@ export const scenario = [
 { speaker: "", text: `每週只能乘坐一次定期船前往的秘境，你也來放鬆一下吧？` },
 
 { speaker: "", text: `在匂巢島的觀光資訊中夾雜著「匂巢島吸血鬼事件」的報道。 好像是曾經在這個島上發生的獵奇殺人事件的報道，但具體情況不明。` },
+
+{
+  bg: "room",
+  scene: "scene1",
+  transition: "fade"
+},
 
 { speaker: "Narrator ", text: ` 【7.18 東京港】` },
 
