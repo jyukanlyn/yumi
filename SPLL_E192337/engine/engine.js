@@ -34,6 +34,9 @@ export function switchScene(name) {
     if (currentScene) ui.gameScreen.classList.remove(currentScene);
     ui.gameScreen.classList.add(name);
   }
+  // ★★★ 新增這行：清除 JS 留下的背景圖，讓 CSS 背景能顯示出來 ★★★
+    ui.gameScreen.style.backgroundImage = ""; 
+  }
   
   currentScene = name;
 }
