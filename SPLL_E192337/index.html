@@ -4,20 +4,21 @@
     <meta charset="UTF-8">
     <title>ex-lover</title>
     <link rel="stylesheet" href="ui/ui.css">
-    <link rel="icon" type="image/png" href="icon.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="ui/scene1.css">
     <link rel="stylesheet" href="ui/scene2.css">
-    <script type="module" src="engine/engine.js"></script>
-
-</head>
+    <link rel="icon" type="image/png" href="icon.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    </head>
 
 <body>
 
 <div id="game-screen" class="scene1">
 
-    <button id="log-btn">LOG</button>
-    <button id="chapter-btn">章節</button>
+    <div class="menu-controls" style="display: contents;">
+        <button id="log-btn">LOG</button>
+        <button id="chapter-btn">章節</button>
+    </div>
 
     <div id="log-window" hidden>
         <div class="log-panel">
@@ -48,14 +49,16 @@
 
 <script>
     window.onerror = function(message, source, lineno, colno, error) {
+        // 過濾 ResizeObserver 雜訊
+        if (message && message.includes("ResizeObserver")) return;
         alert("💀 發生錯誤：\n" + message + "\n\n檔案：" + source + "\n行數：" + lineno);
     };
 </script>
 
 <script type="module">
-    // 這裡原本只負責載入，不需要寫按鈕邏輯，engine.js 會處理
     import("./engine/engine.js").catch(e => {
-        alert("❌ 模組載入失敗！\n請檢查 engine.js 路徑。\n\n" + e);
+        alert("❌ 模組載入失敗！\n請檢查 engine.js 路徑。\n\n詳細錯誤請按 F12 看 Console\n" + e);
+        console.error(e);
     });
 </script>
 
