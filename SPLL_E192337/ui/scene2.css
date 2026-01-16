@@ -1,64 +1,29 @@
-/* ==========================
-   ui/scene2.css - 明亮風格覆寫
-   ========================== */
+/* scene2.css */
 
-/* 當父層 #game-screen 擁有 scene2 class 時生效 */
-.scene2 {
-  --primary-rgb: 87,124,138;
-  --text-main: #20343c; /* 深色字 */
-}
-
-/* 1. 背景覆寫 */
-#game-screen.scene2 {
-  background-image: none; /* 移除原本圖片 */
+.scene-2 {
   background:
-    radial-gradient(circle at 30% 15%, rgba(255,255,255,0.8), transparent 60%),
-    radial-gradient(circle at 75% 35%, rgba(87,124,138,0.2), transparent 55%),
-    linear-gradient(180deg, #e8f1f4 0%, #dbe7ec 100%);
+    linear-gradient(
+      180deg,
+      rgba(87,124,138,0.9) 0%,
+      rgba(45,75,90,0.95) 100%
+    ),
+    url("scene2_bg.jpg") center / cover no-repeat;
 }
 
-/* 2. 對話框覆寫 (注意選擇器寫法： .scene2 空格 #ID) */
-.scene2 #dialogue-box {
-  /* 改為淺色背景 */
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 10px 30px rgba(87,124,138, 0.15);
-  backdrop-filter: blur(10px);
+/* 對話框偏深海色 */
+.scene-2 .dialogue-box {
+  background: rgba(220, 235, 240, 0.22);
+  border-color: rgba(170, 210, 220, 0.35);
 }
 
-/* 3. 裝飾性漣漪 */
-.scene2 #dialogue-box::after {
-  content:"";
-  position:absolute; right:-50px; bottom:-50px;
-  width:300px; height:300px;
-  border-radius:50%;
-  pointer-events:none;
-  z-index:-1;
-  opacity:0.5;
-  background: radial-gradient(circle, rgba(87,124,138,0.1), transparent 70%);
-  animation: ripple 6s ease-in-out infinite;
+/* 角色名偏冷藍 */
+.scene-2 .dialogue-name {
+  color: #d6f1f7;
+  text-shadow: 0 0 10px rgba(120, 190, 210, 0.5);
 }
 
-/* 4. 文字顏色覆寫 (淺色背景配深色字) */
-.scene2 #name-plate { 
-  color: rgb(70,115,132); 
-}
-
-.scene2 #dialogue-text { 
-  color: var(--text-main); /* #20343c */
-}
-
-/* 5. 按鈕樣式覆寫 */
-.scene2 #log-btn, 
-.scene2 #chapter-btn {
-  background: rgba(255,255,255,0.6);
-  border: 1px solid rgba(87,124,138,0.3);
-  color: rgb(87,124,138);
-}
-
-.scene2 #log-btn:hover, 
-.scene2 #chapter-btn:hover {
-  background: rgb(87,124,138);
-  color: white;
-  box-shadow: 0 4px 12px rgba(87,124,138,0.3);
+/* 文字夜海感 */
+.scene-2 .dialogue-text {
+  text-shadow:
+    0 2px 10px rgba(0, 30, 45, 0.6);
 }

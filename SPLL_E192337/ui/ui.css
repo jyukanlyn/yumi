@@ -1,139 +1,79 @@
+/* ui.css - 共用 UI 設定 */
+
 :root {
-  --dialogue-height: 200px;
-  --radius: 22px;
-  --blur: 12px;
+  --glass-bg: rgba(255, 255, 255, 0.28);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --text-main: #f8fdff;
+  --text-name: #e3f6ff;
 }
 
-/* 基本重置 */
-* { box-sizing: border-box; margin:0; padding:0;}
-html, body { width:100%; height:100%; overflow:hidden; font-family:"Noto Serif TC", serif; background:#000; }
-
-/* 遊戲畫面 */
-#game-screen {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Noto Serif TC", "Hiragino Mincho ProN", serif;
+  color: var(--text-main);
   overflow: hidden;
 }
 
-/* 對話框 */
-#dialogue-box {
+/* 遊戲畫面容器 */
+#game {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+/* ===== 對話框（磨砂玻璃） ===== */
+.dialogue-box {
   position: absolute;
-  bottom: 24px;
+  bottom: 5%;
   left: 50%;
   transform: translateX(-50%);
-  width: min(92%, 980px);
-  height: var(--dialogue-height);
-  padding: 22px 26px;
-  border-radius: var(--radius);
-  backdrop-filter: blur(var(--blur));
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  pointer-events: auto;
+  width: 82%;
+  min-height: 160px;
+  padding: 24px 32px;
+
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
+
+  box-shadow:
+    0 8px 30px rgba(0, 40, 60, 0.25),
+    inset 0 0 30px rgba(255, 255, 255, 0.15);
+
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
-/* 返回鍵 */
-#back-btn {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  z-index: 10;
-}
-
-/* 名字板 */
-#name-plate {
-  font-size: 18px;
-  margin-bottom: 6px;
-  letter-spacing: .15em;
-  user-select: none;
+/* 角色名 */
+.dialogue-name {
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+  color: var(--text-name);
+  opacity: 0.85;
 }
 
 /* 對話文字 */
-#dialogue-text {
-  flex: 1;
-  font-size: 17px;
-  line-height: 1.75;
-  overflow: hidden;
-  white-space: pre-wrap;
+.dialogue-text {
+  font-size: 1.05rem;
+  line-height: 1.9;
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 6px rgba(0, 40, 60, 0.35);
 }
 
-/* 角色立繪 */
-.avatar {
+/* 點擊提示 */
+.dialogue-next {
   position: absolute;
-  bottom: 0;
-  height: 88%;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity .6s ease, transform .6s ease;
-  pointer-events: none;
+  bottom: 16px;
+  right: 24px;
+  font-size: 0.85rem;
+  opacity: 0.6;
+  animation: floatHint 2.2s ease-in-out infinite;
 }
 
-.avatar.active { opacity:1; transform: translateY(0); }
-
-/* 控制列 */
-.menu-controls {
-  position: absolute;
-  top: 14px;
-  right: 16px;
-  display: flex;
-  gap: 10px;
-  z-index: 50;
-}
-.menu-controls button {
-  background: rgba(255,255,255,.18);
-  border:none;
-  padding:6px 14px;
-  border-radius:999px;
-  color:#fff;
-  cursor:pointer;
-  backdrop-filter: blur(6px);
-  transition: background .25s ease, transform .25s ease;
-}
-.menu-controls button:hover { background: rgba(255,255,255,.35); transform:translateY(-2px); }
-
-/* LOG */
-#log-window {
-  position: absolute;
-  inset: 8%;
-  padding: 24px;
-  border-radius:26px;
-  backdrop-filter: blur(14px);
-  overflow:hidden;
-  z-index:80;
-}
-#log-content { height:100%; overflow-y:auto; }
-.log-entry { margin-bottom:14px; }
-.log-name { font-weight:bold; margin-right:6px; }
-
-/* Chapter 選單 */
-#chapter-menu {
-  position: absolute;
-  inset:20%;
-  padding:26px;
-  border-radius:26px;
-  backdrop-filter: blur(14px);
-  z-index:90;
-}
-.chapter-item { padding:10px; cursor:pointer; }
-
-/* 點擊漣漪 */
-.click-ripple {
-  position: fixed;
-  width:14px;
-  height:14px;
-  border-radius:50%;
-  border:1px solid rgba(255,255,255,.6);
-  transform:translate(-50%,-50%);
-  animation: ripple 0.8s ease-out forwards;
-  pointer-events:none;
-  z-index:200;
-}
-@keyframes ripple {
-  to { transform:translate(-50%,-50%) scale(8); opacity:0; }
+@keyframes floatHint {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
