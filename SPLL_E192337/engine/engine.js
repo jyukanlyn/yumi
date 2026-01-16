@@ -23,14 +23,13 @@ const ui = {
 };
 
 /* ================================
-   Scene Switch (Fixed)
+   Scene Switch
 ================================ */
-let currentSceneClass = null; // 用來記錄當前的場景 class
+let currentSceneClass = null;
 
 export function switchScene(name) {
   if (!ui.gameScreen) return;
   
-  // 自動移除上一個場景，不需要硬寫 remove("scene1", "scene2"...)
   if (currentSceneClass) {
     ui.gameScreen.classList.remove(currentSceneClass);
   }
@@ -103,7 +102,6 @@ function nextStep() {
 
     if (raw.text) {
       const box = document.getElementById("dialogue-box");
-      // 確保 box 存在再計算高度，避免報錯
       if (box) {
         let maxHeight = box.clientHeight - 90;
         const pages = splitTextByHeight(raw.text, maxHeight);
@@ -164,7 +162,7 @@ function changeBackground(bgID) {
 }
 
 function updateCharacters(step) {
-  // 1. 如果沒有講者或是旁白，隱藏左右兩側立繪
+  // 1. 若無講者，隱藏兩側
   if (!step.speaker || step.speaker === "Narrator") {
     if(ui.avatarLeft) ui.avatarLeft.style.display = "none";
     if(ui.avatarRight) ui.avatarRight.style.display = "none";
@@ -178,14 +176,14 @@ function updateCharacters(step) {
   const src = char.sprites[emotion];
   if (!src) return;
 
-  // 2. 判斷位置：優先讀取 step.position，其次讀取 character 設定，預設為 left
+  // 2. 判斷位置
   const position = step.position || char.defaultPosition || "left";
   
   // 3. 決定目標 DOM
   const targetAvatar = position === "right" ? ui.avatarRight : ui.avatarLeft;
   const otherAvatar = position === "right" ? ui.avatarLeft : ui.avatarRight;
 
-  // 4. 隱藏另一側（避免左右同時出現同一個人的殘影，或是單人對話模式）
+  // 4. 隱藏另一側
   if (otherAvatar) {
     otherAvatar.style.display = "none";
     otherAvatar.classList.remove("active");
@@ -199,10 +197,8 @@ function updateCharacters(step) {
     targetAvatar.style.display = "block";
     targetAvatar.classList.remove("active");
     
-    // 短暫延遲觸發 CSS transition
     setTimeout(() => targetAvatar.classList.add("active"), 20);
   } else {
-    // 圖片一樣時，確保它是顯示狀態
     targetAvatar.style.display = "block";
     if (!targetAvatar.classList.contains("active")) {
         targetAvatar.classList.add("active");
@@ -228,63 +224,25 @@ function showLog() {
 }
 
 /* ================================
-   Init
+   Init (修正版：移除重複定義)
 ================================ */
 function initGame() {
-document.addEventListener("click", e => {
-  if (
-    e.target.closest("#log-window") ||
-    e.target.closest("#chapter-menu") ||
-    e.target.closest("button") ||
-    e.target.closest("#back-btn")
-  ) return;
-
-  nextStep();
-});
-
-
-  if (ui.logBtn) ui.logBtn.onclick = e => {
-    e.stopPropagation();
-    showLog();
-  };
-
-  if (ui.closeLogBtn) ui.closeLogBtn.onclick = e => {
-    e.stopPropagation();
-    ui.logWindow.hidden = true;
-  };
-
-  if (ui.backBtn) ui.backBtn.onclick = e => {
-    e.stopPropagation();
-    prevStep();
-  };
-
-  document.addEventListener("click", e => {
-    const r = document.createElement("div");
-    r.className = "click-ripple";
-    r.style.left = e.clientX + "px";
-    r.style.top = e.clientY + "px";
-    document.body.appendChild(r);
-    setTimeout(() => r.remove(), 900);
-  });
-
-  switchScene("scene1");
-  nextStep();
-}
-
-function initGame() {
-  document.addEventListener("click", e => {
+  // 主要遊戲點擊推進：建議綁定在 gameScreen 而非 document，避免誤觸
+  ui.gameScreen.addEventListener("click", e => {
+    // 忽略特定按鈕的點擊
     if (
       e.target.closest("#log-window") ||
       e.target.closest("#chapter-menu") ||
       e.target.closest("button") ||
-      e.target.closest("#back-btn")
+      e.target.closest(".clickable-area") // 預留給將來的點擊熱區
     ) return;
 
     nextStep();
   });
 
+  // UI 按鈕事件綁定
   if (ui.logBtn) ui.logBtn.onclick = e => {
-    e.stopPropagation();
+    e.stopPropagation(); // 防止觸發上面的 gameScreen click
     showLog();
   };
 
@@ -298,6 +256,7 @@ function initGame() {
     prevStep();
   };
 
+  // 點擊波紋特效 (Ripple)：綁定在 document 以便所有點擊都有回饋
   document.addEventListener("click", e => {
     const r = document.createElement("div");
     r.className = "click-ripple";
@@ -307,6 +266,10 @@ function initGame() {
     setTimeout(() => r.remove(), 900);
   });
 
+  // 啟動遊戲
   switchScene("scene1");
   nextStep();
 }
+
+// 執行初始化
+initGame();

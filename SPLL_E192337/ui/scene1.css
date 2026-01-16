@@ -20,7 +20,7 @@ html, body {
   width:100vw;
   height:100vh;
   /* 預設背景，如有 JS 控制可移除 */
-  background-image: url("../assets/bg/bedroom.png"); 
+  background-image: url("../assets/bg/ex.png"); 
   background-size: cover;
   background-position: center;
 }
