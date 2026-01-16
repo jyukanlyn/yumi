@@ -1,557 +1,205 @@
-/* ============================================================
-   🎨 主題變數｜霧藍 × 水彩夢幻
-============================================================ */
 :root {
-    --primary-rgb: 129, 199, 212;
-    --primary-color: rgb(var(--primary-rgb));
-    --primary-soft: rgba(var(--primary-rgb), 0.25);
-    --primary-water: rgba(var(--primary-rgb), 0.18);
-    --primary-shine: rgba(255, 255, 255, 0.9);
-
-    --glass-bg: rgba(255, 255, 255, 0.88);
-    --glass-border: rgba(255, 255, 255, 0.55);
-
-    --text-main: #223238;
-    --text-sub: #6a828a;
-
-    --dialogue-height: 220px;
-    --dialogue-bottom: 40px;
+  --dialogue-height: 200px;
+  --radius: 22px;
+  --blur: 12px;
+  --transition-fast: .25s ease;
+  --transition-slow: .6s ease;
 }
 
-/* ============================================================
-   🌫 全域背景（水彩紙感）
-============================================================ */
+/* ==============================
+   基本重置
+============================== */
+
+* {
+  box-sizing: border-box;
+}
+
 html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    font-family: "PingFang TC", "Microsoft JhengHei", "Noto Serif TC", serif;
-    background:
-        radial-gradient(circle at 20% 10%, rgba(255,255,255,0.8), transparent 60%),
-        radial-gradient(circle at 80% 30%, rgba(var(--primary-rgb),0.15), transparent 55%),
-        linear-gradient(180deg, #f7fbfc 0%, #edf5f7 100%);
-    overflow: hidden;
-    cursor: default;
-    user-select: none; /* 防止選取文字 */
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Noto Serif TC", "Hiragino Mincho ProN", serif;
+  background: #000;
 }
 
-/* ============================================================
-   🎮 遊戲畫面容器
-============================================================ */
+/* ==============================
+   遊戲畫面
+============================== */
+
 #game-screen {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    background-size: cover;
-    background-position: center;
-    overflow: hidden;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
 }
 
-/* 水彩霧層濾鏡 */
-#game-screen::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(circle at 30% 70%, rgba(var(--primary-rgb),0.18), transparent 55%),
-        radial-gradient(circle at 70% 30%, rgba(255,255,255,0.6), transparent 60%);
-    mix-blend-mode: soft-light;
-    pointer-events: none;
-    z-index: 1;
-}
+/* ==============================
+   對話框本體
+============================== */
 
-/* ============================================================
-   💧 點擊特效（全域水滴）
-   由 JS 動態生成 <div class="click-ripple"></div>
-============================================================ */
-.click-ripple {
-    position: fixed;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    /* 精緻的水波紋漸層 */
-    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(var(--primary-rgb), 0.4) 40%, transparent 70%);
-    box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.2);
-    animation: rippleAnim 0.8s ease-out forwards;
-    z-index: 9999; /* 確保在最上層 */
-}
-
-@keyframes rippleAnim {
-    0% {
-        width: 0;
-        height: 0;
-        opacity: 0.8;
-    }
-    100% {
-        width: 150px;
-        height: 150px;
-        opacity: 0;
-    }
-}
-
-/* ============================================================
-   👤 角色立繪（柔焦＋夢境呼吸）
-   Z-index: 5
-============================================================ */
-#avatar-container {
-    position: absolute;
-    bottom: calc(var(--dialogue-height) + var(--dialogue-bottom) - 80px); /* 讓立繪稍微延伸到對話框後方 */
-    width: 100%;
-    height: 50%; /* 增加高度避免切頭 */
-    pointer-events: none;
-    z-index: 5;
-    overflow: hidden;
-    display: flex;
-    justify-content: center; /* 預設置中，可依 left/right class 調整 */
-}
-
-.avatar {
-    position: absolute;
-    bottom: -20px;
-    max-height: 100%;
-    opacity: 0;
-    transform: translateY(20px) scale(0.97);
-    transition:
-        opacity 0.7s ease,
-        transform 0.7s ease,
-        filter 0.7s ease;
-    filter: saturate(0.95);
-}
-
-.avatar.left { left: 10%; } /* 調整位置避免太靠邊 */
-.avatar.right { right: 10%; }
-
-/* 啟動狀態：顯示並呼吸 */
-.avatar.active {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    animation: dreamBreathe 6s ease-in-out infinite;
-    filter:
-        drop-shadow(0 -4px 18px rgba(0,0,0,0.05))
-        drop-shadow(0 0 22px var(--primary-soft));
-}
-
-.avatar.inactive {
-    opacity: 0.45;
-    filter: blur(0.5px) saturate(0.85);
-}
-
-@keyframes dreamBreathe {
-    0%   { transform: scale(1); }
-    50%  { transform: scale(1.02); }
-    100% { transform: scale(1); }
-}
-
-/* ============================================================
-   🎲 特殊事件圖 (如骰子、物品)
-   Z-index: 80 (在立繪上，對話框下)
-============================================================ */
-#event-image {
-    position: absolute;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 80;
-    pointer-events: none;
-    max-width: 60%;
-    max-height: 60%;
-    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8));
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-@keyframes popIn {
-    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-}
-
-/* ============================================================
-   💬 對話框（水彩玻璃）
-   Z-index: 100
-============================================================ */
 #dialogue-box {
-    position: relative;
-    left: 50%;
-    bottom: var(--dialogue-bottom);
-    transform: translateX(-50%);
-    overflow: hidden;
-    width: 90%;
-    max-width: 960px;
-    height: var(--dialogue-height);
-    padding: 28px 52px 62px;
-    box-sizing: border-box;
-
-    background:
-        linear-gradient(
-            135deg,
-            rgba(255,255,255,0.92),
-            rgba(240,248,252,0.85)
-        );
-    backdrop-filter: blur(12px);
-    border-radius: 28px;
-    border: 1px solid var(--glass-border);
-
-    box-shadow:
-        0 16px 40px rgba(0,0,0,0.08),
-        inset 0 0 20px rgba(255,255,255,0.5);
-
-    z-index: 100;
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  width: min(92%, 980px);
+  height: var(--dialogue-height);
+  padding: 22px 26px;
+  border-radius: var(--radius);
+  backdrop-filter: blur(var(--blur));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  pointer-events: auto;
+  z-index: 40;
 }
 
-/* ============================================================
-   🌊 對話框整體水紋層（波浪感）
-============================================================ */
+/* ==============================
+   名字板
+============================== */
 
-#dialogue-box::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    z-index: 0;
-
-    background:
-        repeating-linear-gradient(
-            -12deg,
-            rgba(255,255,255,0.12) 0px,
-            rgba(255,255,255,0.18) 6px,
-            rgba(var(--primary-rgb),0.08) 12px,
-            rgba(255,255,255,0.12) 18px
-        ),
-        radial-gradient(circle at 30% 40%, rgba(var(--primary-rgb),0.18), transparent 60%),
-        radial-gradient(circle at 70% 60%, rgba(255,255,255,0.35), transparent 65%);
-
-    background-size: 220% 220%;
-    mix-blend-mode: soft-light;
-    opacity: .55;
-
-    filter: blur(0.6px);
-
-    animation:
-        waveFlow 18s linear infinite,
-        waveBreath 7s ease-in-out infinite;
-}
-
-@keyframes waveFlow {
-    0%   { background-position: 0% 0%; }
-    100% { background-position: 220% 220%; }
-}
-
-@keyframes waveBreath {
-    0%   { opacity: .45; }
-    50%  { opacity: .65; }
-    100% { opacity: .45; }
-}
-
-
-
-/* 水彩邊緣暈染 */
-#dialogue-box::before {
-    content: "";
-    position: absolute;
-    inset: -15px;
-    background:
-        radial-gradient(circle at 20% 30%, rgba(var(--primary-rgb),0.15), transparent 60%),
-        radial-gradient(circle at 80% 70%, rgba(var(--primary-rgb),0.10), transparent 65%);
-    filter: blur(25px);
-    opacity: 0.6;
-    z-index: -1;
-    border-radius: 40px;
-}
-
-/* ============================================================
-   💧 選單按鈕 (LOG/Chapter)
-   Z-index: 110 (浮在對話框上)
-============================================================ */
-/* 這裡不需要 .menu-controls 容器樣式，因為按鈕是直接放在 #game-screen */
-
-#log-btn, #chapter-btn {
-    position: absolute;
-    bottom: calc(var(--dialogue-height) + var(--dialogue-bottom) - 15px); /* 貼齊對話框頂部 */
-    z-index: 110;
-    
-    appearance: none;
-    border: none;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    
-    /* 玻璃水滴質感 */
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 
-        inset 0 4px 6px rgba(255, 255, 255, 0.9),
-        0 4px 10px rgba(0,0,0,0.05);
-    
-    color: var(--text-sub);
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-#log-btn { right: 5%; }
-#chapter-btn { right: calc(5% + 60px); }
-
-#log-btn:hover, #chapter-btn:hover {
-    background: rgba(255, 255, 255, 0.8);
-    transform: translateY(-4px) scale(1.05);
-    color: var(--primary-color);
-    box-shadow: 0 8px 15px rgba(var(--primary-rgb), 0.25);
-}
-
-/* ============================================================
-   ⭐ 名字欄 & 對話文字
-============================================================ */
 #name-plate {
-    height: 36px;
-    line-height: 36px;
-    margin-bottom: 12px;
-    font-size: 1.25rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    color: var(--primary-color);
-    text-shadow: 0 0 14px var(--primary-soft);
-    position: relative;
-    display: inline-block;
+  font-size: 18px;
+  margin-bottom: 6px;
+  letter-spacing: .15em;
+  user-select: none;
 }
+
+/* ==============================
+   對話文字
+============================== */
 
 #dialogue-text {
-    font-size: 1.15rem;
-    line-height: 1.75;
-    color: var(--text-main);
-    white-space: pre-wrap;
-    max-height: calc(var(--dialogue-height) - 100px);
-    overflow-y: hidden; /* 防止出現雙重捲軸 */
+  flex: 1;
+  font-size: 17px;
+  line-height: 1.75;
+  overflow: hidden;
+  white-space: pre-wrap;
 }
 
-/* ============================================================
-   ↩ 返回按鈕
-============================================================ */
-#back-btn {
-    position: absolute;
-    bottom: 20px;
-    left: 25px;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    opacity: 0.4;
-    transition: all 0.3s ease;
-    background: rgba(255,255,255,0.5);
-    border-radius: 50%;
-    padding: 5px; /* 增加一點點擊範圍 */
+/* ==============================
+   角色立繪
+============================== */
+
+#avatar-left,
+#avatar-right {
+  position: absolute;
+  bottom: 0;
+  height: 88%;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .6s ease, transform .6s ease;
+  pointer-events: none;
+  z-index: 20;
 }
 
-#back-btn:hover {
-    opacity: 0.9;
-    transform: scale(1.1);
-    background: #fff;
-    box-shadow: 0 0 10px var(--primary-soft);
+#avatar-left { left: 5%; }
+#avatar-right { right: 5%; }
+
+
+#avatar-left.active {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-/* ============================================================
-   📜 LOG 視窗（星砂紙質感）
-   Z-index: 2000
-============================================================ */
+/* ==============================
+   右上控制列
+============================== */
+
+.menu-controls {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  display: flex;
+  gap: 10px;
+  z-index: 50;
+}
+
+.menu-controls button {
+  background: rgba(255,255,255,.18);
+  border: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background .25s ease, transform .25s ease;
+}
+
+.menu-controls button:hover {
+  background: rgba(255,255,255,.35);
+  transform: translateY(-2px);
+}
+
+/* ==============================
+   LOG 視窗
+============================== */
+
 #log-window {
-    position: fixed;
-    inset: 0;
-    background: rgba(100, 115, 120, 0.2);
-    backdrop-filter: blur(4px);
-    z-index: 2000;
-    display: flex; /* 預設 flex，用 hidden 屬性控制顯示 */
-    justify-content: center;
-    align-items: center;
-}
-
-#log-window .log-panel {
-    width: 80%;
-    height: 75%;
-    max-width: 900px;
-    
-    /* 星砂紙質感 */
-    background-color: #fafbfd;
-    background-image: 
-        radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,1), transparent),
-        radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,1), transparent),
-        radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,1), transparent),
-        radial-gradient(2px 2px at 150px 100px, rgba(129, 199, 212, 0.4), transparent),
-        repeating-linear-gradient(45deg, rgba(0,0,0,0.01) 0px, rgba(0,0,0,0.01) 2px, transparent 2px, transparent 4px);
-    background-size: 200px 200px, 200px 200px, 200px 200px, 200px 200px, auto;
-    
-    border-radius: 32px;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 
-        0 20px 50px rgba(0,0,0,0.1),
-        inset 0 0 60px rgba(255,255,255,0.8);
-
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    animation: floatIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-@keyframes floatIn {
-    from { opacity: 0; transform: translateY(20px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.log-header {
-    padding: 24px 40px;
-    background: linear-gradient(to right, rgba(var(--primary-rgb),0.05), transparent);
-    border-bottom: 1px dashed rgba(var(--primary-rgb), 0.2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.log-header h2 {
-    margin: 0;
-    color: var(--primary-color);
-    font-size: 1.4rem;
-    letter-spacing: 0.1em;
-}
-
-#close-log-btn {
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 1rem;
-    color: var(--text-sub);
-    padding: 8px 16px;
-    border-radius: 20px;
-    transition: all 0.2s;
-}
-
-#close-log-btn:hover {
-    background: rgba(var(--primary-rgb), 0.1);
-    color: var(--primary-color);
+  position: absolute;
+  inset: 8%;
+  padding: 24px;
+  border-radius: 26px;
+  backdrop-filter: blur(14px);
+  overflow: hidden;
+  z-index: 80;
 }
 
 #log-content {
-    flex: 1;
-    padding: 30px 50px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary-soft) transparent;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .log-entry {
-    margin-bottom: 24px;
-    padding: 16px 22px;
-    background: rgba(255,255,255,0.4); 
-    border-left: 3px solid var(--primary-soft);
-    border-radius: 4px 12px 12px 4px;
-    transition: background 0.2s;
-}
-
-.log-entry:hover {
-    background: rgba(255,255,255,0.7);
+  margin-bottom: 14px;
 }
 
 .log-name {
-    display: block;
-    color: var(--primary-color);
-    font-weight: 800;
-    margin-bottom: 6px;
-    font-size: 0.95rem;
+  font-weight: bold;
+  margin-right: 6px;
 }
 
-.log-text {
-    color: var(--text-main);
-    line-height: 1.6;
-    font-size: 1rem;
-}
+/* ==============================
+   章節選單
+============================== */
 
-/* ============================================================
-   📚 章節選單 (Chapter Menu)
-   Z-index: 200 (比對話框高，比 Log 低)
-============================================================ */
 #chapter-menu {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 320px;
-    max-height: 70vh;
-    overflow-y: auto;
-    
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--primary-water);
-    border-radius: 20px;
-    padding: 24px;
-    
-    z-index: 200;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    animation: popIn 0.3s ease-out;
-}
-
-#chapter-menu h2 {
-    text-align: center;
-    color: var(--primary-color);
-    margin: 0 0 16px 0;
-    font-size: 1.3rem;
-    padding-bottom: 12px;
-    border-bottom: 2px dotted var(--primary-soft);
+  position: absolute;
+  inset: 20%;
+  padding: 26px;
+  border-radius: 26px;
+  backdrop-filter: blur(14px);
+  z-index: 90;
 }
 
 .chapter-item {
-    padding: 14px 20px;
-    background: #f7fbfc;
-    border-radius: 12px;
-    cursor: pointer;
-    text-align: center;
-    color: var(--text-main);
-    transition: all 0.2s;
-    font-weight: 500;
-    border: 1px solid transparent;
+  padding: 10px;
+  cursor: pointer;
 }
 
-.chapter-item:hover {
-    background: #fff;
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.15);
+/* ==============================
+   點擊水滴特效
+============================== */
+
+.click-ripple {
+  position: fixed;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.6);
+  transform: translate(-50%,-50%);
+  animation: ripple .8s ease-out forwards;
+  pointer-events: none;
+  z-index: 200;
 }
 
-/* ============================================================
-   🚫 隱藏屬性工具
-============================================================ */
-[hidden] {
-    display: none !important;
+@keyframes ripple {
+  to {
+    transform: translate(-50%,-50%) scale(8);
+    opacity: 0;
+  }
 }
-
-body {
-  transition: background .6s ease, filter .6s ease;
-}
-
-#dialogue-box,
-#log-window,
-#name-plate {
-  transition: background .6s ease, box-shadow .6s ease, color .6s ease;
-}
-
-/* 加入在 CSS 檔案最末端 */
-@media (max-width: 600px) {
-    #dialogue-box {
-        padding: 20px 24px 50px; /* 縮小 Padding 讓文字顯示區域變大 */
-        width: 94%; /* 增加寬度佔比 */
-    }
-    
-    #log-btn { right: 2%; }
-    #chapter-btn { right: calc(2% + 55px); }
-    
-    .avatar {
-        transform: translateY(20px) scale(0.85); /* 手機上立繪稍微縮小 */
-    }
-}
-
