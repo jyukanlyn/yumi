@@ -32,8 +32,17 @@ export const scenario = [
 { speaker: "Narrator ", text: ` 你很快收到報名訊息。` },
 { speaker: "", text: `【7.14 7 A.M. 東京港】` },
 
+{
+  bg: "room",
+  theme: "scene2",
+  transition: "fade"
 
-{ speaker: "Narrator ", text: ` 回憶起17歲那年夏天，父母含淚對你說「明年就要嫁人了...」。` },
+},
+
+{ speaker: "白井　波", text: `` },
+
+
+{ speaker: "Narrator", text: ` 回憶起17歲那年夏天，父母含淚對你說「明年就要嫁人了...」。` },
 
 { speaker: "", text: `那不是結婚，是作為神子的「嫁入儀式」。` },
 

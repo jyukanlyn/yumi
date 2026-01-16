@@ -1,0 +1,130 @@
+/* ============================================================
+   🌫 Scene 2 主題｜R87 G124 B138｜霧藍水境
+============================================================ */
+
+body.scene2 {
+    --primary-rgb: 87, 124, 138;
+    --primary-color: rgb(var(--primary-rgb));
+    --primary-soft: rgba(var(--primary-rgb), 0.28);
+    --primary-water: rgba(var(--primary-rgb), 0.18);
+
+    --glass-border: rgba(255, 255, 255, 0.45);
+
+    --text-main: #e6f2f5;
+    --text-sub: #9fb9c2;
+}
+
+/* ============================================================
+   🌫 背景紙感加深
+============================================================ */
+
+body.scene2 {
+    background:
+        radial-gradient(circle at 30% 15%, rgba(255,255,255,0.55), transparent 60%),
+        radial-gradient(circle at 75% 35%, rgba(87,124,138,0.22), transparent 55%),
+        linear-gradient(180deg, #e8f1f4 0%, #dbe7ec 100%);
+}
+
+/* ============================================================
+   💬 對話框氣氛
+============================================================ */
+
+body.scene2 #dialogue-box {
+    background: linear-gradient(135deg, rgba(20,35,40,.88), rgba(40,70,80,.82));
+    border: 1px solid rgba(var(--primary-rgb),.35);
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.4),
+        inset 0 0 25px rgba(255,255,255,.05);
+}
+
+/* 右側漣漪變冷色 */
+body.scene2 #dialogue-box::after {
+    background: radial-gradient(
+        circle,
+        rgba(var(--primary-rgb),0.32),
+        transparent 65%
+    );
+    opacity: 0.35;
+}
+
+/* ============================================================
+   ⭐ 名字與文字
+============================================================ */
+
+body.scene2 #name-plate {
+    color: rgb(70, 115, 132);
+    text-shadow: 0 0 6px rgba(87,124,138,0.35);
+}
+
+body.scene2 #dialogue-text {
+    color: #20343c;
+}
+
+/* ============================================================
+   💧 LOG / 章節按鈕
+============================================================ */
+
+body.scene2 #log-btn,
+body.scene2 #chapter-btn {
+    background: rgba(30,60,70,.55);
+    border: 1px solid rgba(var(--primary-rgb),.4);
+    color: #cfe6ec;
+}
+
+body.scene2 #log-btn:hover,
+body.scene2 #chapter-btn:hover {
+    background: rgba(255,255,255,0.85);
+    color: rgb(87,124,138);
+    box-shadow: 0 0 18px rgba(87,124,138,0.35);
+}
+
+/* ============================================================
+   📜 LOG 視窗星砂偏霧
+============================================================ */
+
+body.scene2 #log-window {
+    background:
+        radial-gradient(circle, rgba(255,255,255,0.22) 1px, transparent 1px),
+        linear-gradient(180deg, #edf4f7, #dfe9ee);
+    background-size: 6px 6px, cover;
+}
+
+body.scene2 .log-header {
+    background: linear-gradient(180deg, #2b4652, #1b313a);
+}
+
+body.scene2 .log-name {
+    color: rgb(87,124,138);
+}
+
+/* ============================================================
+   👤 立繪光暈冷化
+============================================================ */
+
+body.scene2 .avatar.active {
+    filter: drop-shadow(0 0 22px rgba(87,124,138,0.45));
+}
+
+/* ============================================================
+   🎮 點擊水波顏色調整
+============================================================ */
+
+body.scene2 #game-screen::before {
+    background: radial-gradient(
+        circle at center,
+        rgba(87,124,138,0.38) 0%,
+        transparent 65%
+    );
+}
+
+body.scene2 #game-screen::after {
+    background:
+        radial-gradient(circle at 30% 70%, rgba(var(--primary-rgb),.25), transparent 55%),
+        radial-gradient(circle at 70% 30%, rgba(255,255,255,.08), transparent 60%);
+    mix-blend-mode: screen;
+}
+
+body.scene2 .click-ripple {
+    background: radial-gradient(circle, rgba(255,255,255,.7) 0%, rgba(var(--primary-rgb),.6) 40%, transparent 70%);
+    box-shadow: 0 0 14px rgba(var(--primary-rgb),.35);
+}
