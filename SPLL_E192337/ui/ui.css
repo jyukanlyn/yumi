@@ -65,7 +65,7 @@ html, body {
     position: absolute;
     bottom: calc(var(--dialogue-height) + var(--dialogue-bottom) - 80px);
     width: 100%;
-    height: 80%;
+    height: 50%;
     pointer-events: none;
     z-index: 5;
     overflow: hidden;
