@@ -2,20 +2,31 @@ import { scenario } from "../data/scenario.js";
 import { characters } from "../data/characters.js";
 import { state, backgrounds } from "./state.js";
 
-/* UI 元素對應 */
+/* ============================================================
+   📍 UI 元素對應
+   (請確保 HTML ID 與此處一致)
+============================================================ */
 const ui = {
   themeLink: document.getElementById("scene-theme"),
   gameScreen: document.getElementById("game-screen"),
-  namePlate: document.getElementById("name-plate"),
-  textBox: document.getElementById("dialogue-text"),
-  dialogueBox: document.getElementById("dialogue-box"), // 新增：為了控制對話框隱藏
-  avatarLeft: document.getElementById("avatar-left"),
-  avatarRight: document.getElementById("avatar-right"),
   
-  // ★ 新增：彈窗相關 UI
+  // 轉場遮罩
+  transitionOverlay: document.getElementById("transition-overlay"),
+  
+  // 彈窗
   popupOverlay: document.getElementById("popup-overlay"),
   popupContent: document.getElementById("popup-content"),
 
+  // 對話相關
+  namePlate: document.getElementById("name-plate"),
+  textBox: document.getElementById("dialogue-text"),
+  dialogueBox: document.getElementById("dialogue-box"),
+  
+  // 立繪
+  avatarLeft: document.getElementById("avatar-left"),
+  avatarRight: document.getElementById("avatar-right"),
+  
+  // 選單與 Log
   chapterBtn: document.getElementById("chapter-btn"),
   chapterMenu: document.getElementById("chapter-menu"),
   logBtn: document.getElementById("log-btn"),
@@ -26,34 +37,52 @@ const ui = {
   eventImage: document.getElementById("event-image"),
 };
 
-/* --- [Typewriter] 打字機狀態 --- */
+/* ============================================================
+   ⌨️ 打字機狀態
+============================================================ */
 let typingTimer = null;
 let isTyping = false;
 let fullTextCache = "";
 let typeIndex = 0;
-const TYPE_SPEED = 45;
+const TYPE_SPEED = 40; // 打字速度 (毫秒)
 
-/* --- [Popup] 彈窗狀態 --- */
-let isPopupMode = false;
+/* ============================================================
+   🏁 遊戲狀態與變數
+============================================================ */
+let isPopupMode = false; // 是否正在顯示彈窗
+let currentScene = null; // 當前場景 CSS 名稱
 
-/* --- [功能] 場景切換 --- */
-let currentScene = null;
+/* ============================================================
+   🛠️ 輔助功能：場景切換與文字處理
+============================================================ */
 
+/**
+ * 切換 CSS 主題場景
+ * @param {string} name - css 檔案名稱 (不含路徑與副檔名)
+ */
 export function switchScene(name) {
+  // 1. 換 CSS 檔
   if (ui.themeLink) {
     ui.themeLink.href = `ui/${name}.css`;
   }
+
+  // 2. 換 Class 並清除殘留的 JS 背景設定
   if (ui.gameScreen) {
     if (currentScene) ui.gameScreen.classList.remove(currentScene);
     ui.gameScreen.classList.add(name);
+    
+    // ★ 清除 JS 設定的背景，讓 CSS 能完全接管 (避免 style="background:..." 殘留)
     ui.gameScreen.style.backgroundImage = ""; 
+    ui.gameScreen.style.backgroundSize = ""; 
+    ui.gameScreen.style.backgroundPosition = "";
   }
   currentScene = name;
 }
 
-/* --- [助手] 文字分頁邏輯 --- */
+// 清除段落開頭的空白與換行
 function cleanPageStart(t) { return t.replace(/^[\n\r\s]+/, ""); }
 
+// 根據高度切割文字 (分頁邏輯)
 function splitTextByHeight(text, maxH) {
   const test = document.createElement("div");
   const style = getComputedStyle(ui.textBox);
@@ -91,7 +120,9 @@ function splitTextByHeight(text, maxH) {
   return pages;
 }
 
-/* --- [Typewriter] 打字機功能 --- */
+/* ============================================================
+   ✍️ 打字機核心
+============================================================ */
 function startTypewriter(text) {
   if (!ui.textBox) return;
 
@@ -123,69 +154,129 @@ function skipTypewriter() {
   isTyping = false;
 }
 
-/* --- [核心] 下一步邏輯 --- */
-function nextStep() {
-  // 如果正在彈窗模式，先關閉彈窗，但不急著讀下一行（因為 click 事件會再次觸發 nextStep）
-  // 這裡的邏輯主要由 click handler 控制
-  
-  let step;
+/* ============================================================
+   🎬 轉場控制 (Transition)
+============================================================ */
+function handleTransition(type, callback) {
+  if (type === "fade" && ui.transitionOverlay) {
+    // 1. 變黑 (Fade Out)
+    ui.transitionOverlay.classList.add("active");
 
-  // 1. 檢查是否有剩餘的文字分頁
+    // 2. 等待動畫時間 (0.5s = 500ms)
+    setTimeout(() => {
+      // 3. 執行真正的換場邏輯 (回呼函式)
+      callback();
+
+      // 4. 等待畫面渲染後，再變亮 (Fade In)
+      setTimeout(() => {
+        ui.transitionOverlay.classList.remove("active");
+      }, 50); 
+    }, 500);
+  } else {
+    // 如果沒有轉場或元素缺失，直接執行
+    callback();
+  }
+}
+
+/* ============================================================
+   🚀 核心流程控制 (Next / Prev)
+============================================================ */
+
+/**
+ * 決定下一步要做什麼 (判斷分頁、轉場、執行)
+ */
+function nextStep() {
+  // 1. 彈窗模式：優先關閉彈窗，不讀下一句
+  // (因為 click 事件會觸發 nextStep，這裡只需 return，讓 closePopup 透過 render 自動處理)
+  if (isPopupMode) return;
+
+  // 2. 檢查是否有剩餘的文字分頁
   if (state.textQueue.length) {
     const chunk = state.textQueue.shift();
     const last = state.backStack.length > 0 ? state.backStack.at(-1) : { stepData: {} };
-    step = { ...last.stepData, text: chunk }; 
-  } else {
-    // 2. 讀取新的劇本行
-    if (state.index >= scenario.length) return; 
+    const step = { ...last.stepData, text: chunk };
     
-    let raw = { ...scenario[state.index++] };
-
-    // 繼承說話者 (如果不是彈窗)
-    if (!raw.popup) {
-        if (!raw.speaker && state.lastSpeaker) raw.speaker = state.lastSpeaker;
-        if (raw.speaker) state.lastSpeaker = raw.speaker;
-    }
-
-    // 偵測場景切換並自動標記清空
-    if (raw.scene) {
-      switchScene(raw.scene);
-      raw.clearChars = true; 
-    }
-
-    // 處理文字分頁 (僅在非彈窗時)
-    if (raw.text && !raw.popup) {
-      const box = ui.textBox;
-      if (box) {
-        const style = window.getComputedStyle(box);
-        const paddingY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
-        let maxH = box.clientHeight - paddingY - 10;
-        if (maxH < 30) maxH = 200; 
-
-        const pages = splitTextByHeight(raw.text, maxH);
-        raw.text = pages.shift(); 
-        state.textQueue = pages;  
-      }
-    }
-
-    state.history.push({ speaker: raw.speaker || "System", text: raw.text });
-    step = raw;
+    // ★★★ [LOG 修復] 分頁後的文字也要進 Log ★★★
+    state.history.push({ speaker: step.speaker || "System", text: chunk });
+    
+    render(step, false);
+    
+    state.backStack.push({ 
+        index: state.index, 
+        textQueue: [...state.textQueue], 
+        stepData: JSON.parse(JSON.stringify(step)) 
+    });
+    return;
   }
 
-  render(step, false);
+  // 3. 劇本結束檢查
+  if (state.index >= scenario.length) return;
+
+  // 4. 預讀下一行資料 (尚未 index++)
+  let raw = { ...scenario[state.index] };
+
+  // 5. 判斷是否需要轉場
+  if (raw.transition) {
+    handleTransition(raw.transition, () => {
+      executeStep(); // 轉場黑屏中間執行
+    });
+  } else {
+    executeStep(); // 直接執行
+  }
+}
+
+/**
+ * 真正執行下一句 (更新 index, 處理邏輯)
+ */
+function executeStep() {
+  let raw = { ...scenario[state.index++] };
+
+  // 繼承說話者 (如果不是彈窗)
+  if (!raw.popup) {
+    if (!raw.speaker && state.lastSpeaker) raw.speaker = state.lastSpeaker;
+    if (raw.speaker) state.lastSpeaker = raw.speaker;
+  }
+
+  // ★ 偵測場景切換：換 CSS 並自動清空立繪
+  if (raw.scene) {
+    switchScene(raw.scene);
+    raw.clearChars = true; 
+  }
+
+  // 文字分頁計算 (僅在非彈窗時)
+  if (raw.text && !raw.popup) {
+    const box = ui.textBox;
+    if (box) {
+      const style = window.getComputedStyle(box);
+      const paddingY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+      let maxH = box.clientHeight - paddingY - 10;
+      if (maxH < 30) maxH = 200; 
+
+      const pages = splitTextByHeight(raw.text, maxH);
+      raw.text = pages.shift(); 
+      state.textQueue = pages;  
+    }
+  }
+
+  // [LOG 正常紀錄] 新的一行文字進 Log
+  state.history.push({ speaker: raw.speaker || "System", text: raw.text });
   
+  // 渲染畫面
+  render(raw, false);
+  
+  // 存入 BackStack (深拷貝)
   state.backStack.push({ 
     index: state.index, 
     textQueue: [...state.textQueue], 
-    stepData: JSON.parse(JSON.stringify(step)) 
+    stepData: JSON.parse(JSON.stringify(raw)) 
   });
 }
 
 function prevStep() {
-  // 彈窗模式下禁止回頭，或者強制關閉彈窗
+  // 彈窗模式下禁止回頭，強制關閉彈窗
   if (isPopupMode) {
       closePopup();
-      return; // 這裡可以選擇是否要真的退回上一句，還是只是關視窗
+      return; 
   }
 
   clearInterval(typingTimer);
@@ -202,36 +293,35 @@ function prevStep() {
     switchScene(prev.stepData.scene);
   }
 
+  // 回放模式：instant = true (不打字)
   render(prev.stepData, true);
 }
 
-/* --- [Render] 渲染畫面 --- */
+/* ============================================================
+   🎨 Render 畫面渲染
+============================================================ */
 function render(step, instant = false) {
-  // 背景圖片
+  // 1. 背景處理 (支援陣列疊圖)
   if (step.bg) changeBackground(step.bg);
 
-  // ★★★ 處理 Popup 邏輯 ★★★
+  // 2. 彈窗 (Popup) 處理
   if (step.popup) {
-      // 1. 顯示彈窗
       isPopupMode = true;
-      ui.popupContent.textContent = step.text;
-      ui.popupOverlay.classList.remove("hidden");
+      if (ui.popupContent) ui.popupContent.textContent = step.text;
+      if (ui.popupOverlay) {
+          ui.popupOverlay.classList.remove("hidden");
+          setTimeout(() => ui.popupOverlay.classList.add("active"), 10);
+      }
       
-      // 2. 為了動畫效果，給予 active class
-      // 使用 setTimeout 確保 transition 效果
-      setTimeout(() => ui.popupOverlay.classList.add("active"), 10);
-
-      // 3. 隱藏對話框與立繪 (可選，看你要不要保留背景)
-      // 這裡選擇保留立繪背景，但隱藏對話框本體以免干擾
+      // 隱藏對話框，保留背景
       if (ui.dialogueBox) ui.dialogueBox.style.opacity = "0";
       
-      return; // ★ 重要：如果是彈窗，就不執行下方的打字機邏輯
+      return; // 彈窗模式下不處理後續對話框邏輯
   } else {
-      // 恢復非彈窗狀態
       closePopup();
   }
 
-  // 名字與對話框
+  // 3. 名字與對話框顯示
   if (ui.namePlate) {
     if (!step.speaker || step.speaker === "Narrator") {
       ui.namePlate.style.visibility = "hidden";
@@ -241,7 +331,7 @@ function render(step, instant = false) {
     }
   }
   
-  // 文字顯示
+  // 4. 文字內容顯示
   if (ui.textBox) {
     if (instant) {
       ui.textBox.textContent = step.text || "";
@@ -252,57 +342,51 @@ function render(step, instant = false) {
     }
   }
   
+  // 5. 立繪更新
   updateCharacters(step);
 }
 
+/* 關閉彈窗 */
 function closePopup() {
     isPopupMode = false;
     if (ui.popupOverlay) {
         ui.popupOverlay.classList.remove("active");
-        setTimeout(() => ui.popupOverlay.classList.add("hidden"), 400); // 等待動畫結束再隱藏
+        setTimeout(() => ui.popupOverlay.classList.add("hidden"), 400);
     }
-    // 恢復對話框顯示
     if (ui.dialogueBox) ui.dialogueBox.style.opacity = "1";
 }
 
-/* --- [功能] 切換背景 (支援單張與多張疊加) --- */
-function changeBackground(bg) {
-  // 如果 bg 是空的，什麼都不做
+/* 切換背景 (支援單張字串或多張陣列) */
+function changeBackground(bg) { 
   if (!bg) return;
 
   let bgString = "";
-
-  // 情況 A：如果是陣列 (["layer1", "layer2"])
+  
   if (Array.isArray(bg)) {
-    // 把陣列裡的每個名字，轉換成 url('...')
+    // 陣列處理：["A", "B"] -> url(A), url(B)
     const urls = bg.map(name => {
       const path = backgrounds[name];
       return path ? `url('${path}')` : null;
-    }).filter(u => u); // 過濾掉找不到圖片的
-
-    // CSS 語法是用逗號連接： url(a.jpg), url(b.jpg)
+    }).filter(u => u);
     bgString = urls.join(", ");
-  } 
-  // 情況 B：如果是單純的字串 ("room")
-  else {
+  } else {
+    // 字串處理
     const path = backgrounds[bg];
     if (path) bgString = `url('${path}')`;
   }
 
-  // 套用到螢幕上
-  if (bgString) {
+  if (bgString && ui.gameScreen) {
     ui.gameScreen.style.backgroundImage = bgString;
-    
-    // 確保每一層背景都是滿版置中
-    // 如果你有兩層，CSS 會自動把 cover 套用到每一層
+    // 確保樣式正確
     ui.gameScreen.style.backgroundSize = "cover";
     ui.gameScreen.style.backgroundPosition = "center";
     ui.gameScreen.style.backgroundRepeat = "no-repeat";
   }
 }
 
-/* --- [Update Characters] 立繪更新邏輯 --- */
+/* 立繪更新邏輯 */
 function updateCharacters(step) {
+  // 1. 清空立繪指令
   if (step.clearChars) {
     if (ui.avatarLeft) {
       ui.avatarLeft.style.display = "none";
@@ -314,6 +398,7 @@ function updateCharacters(step) {
     }
   }
 
+  // 2. 旁白隱藏
   if (!step.speaker || step.speaker === "Narrator") {
     if (ui.avatarLeft) ui.avatarLeft.style.display = "none";
     if (ui.avatarRight) ui.avatarRight.style.display = "none";
@@ -338,6 +423,7 @@ function updateCharacters(step) {
 
   if (!target) return;
 
+  // 切換圖片與動畫
   if (!target.src.endsWith(src)) {
     target.src = src;
     target.style.display = "block";
@@ -349,8 +435,11 @@ function updateCharacters(step) {
   }
 }
 
-/* --- [Log] 歷史紀錄 --- */
+/* ============================================================
+   📜 Log 歷史紀錄
+============================================================ */
 function showLog() {
+  if (!ui.logWindow) return;
   ui.logContent.innerHTML = "";
   state.history.forEach(l => {
     const div = document.createElement("div");
@@ -361,19 +450,21 @@ function showLog() {
   ui.logWindow.hidden = false;
 }
 
-/* --- [初始化] --- */
+/* ============================================================
+   🎮 遊戲初始化與事件監聽
+============================================================ */
 function initGame() {
-  // 1. 滑鼠/觸控點擊事件
+  // 1. 點擊螢幕推進
   ui.gameScreen.addEventListener("click", e => {
+    // 忽略按鈕與選單點擊
     if (e.target.closest("#log-window") || 
         e.target.closest("#chapter-menu") || 
         e.target.closest("button") || 
         e.target.closest("#back-btn")) return;
 
-    // ★ 彈窗邏輯：如果彈窗開著，點擊就是「關閉彈窗並執行下一步」
+    // ★ 彈窗邏輯：點擊關閉並前進
     if (isPopupMode) {
-        // closePopup(); // closePopup 會在 render(nextStep) 中自動呼叫
-        nextStep();     // 直接讀下一句，下一句 render 時會自動把彈窗關掉
+        nextStep(); 
         return;
     }
 
@@ -384,12 +475,12 @@ function initGame() {
     nextStep();
   });
 
-  // 2. 按鈕事件
+  // 2. 按鈕綁定
   if (ui.logBtn) ui.logBtn.onclick = e => { e.stopPropagation(); showLog(); };
   if (ui.closeLogBtn) ui.closeLogBtn.onclick = e => { e.stopPropagation(); ui.logWindow.hidden = true; };
   if (ui.backBtn) ui.backBtn.onclick = e => { e.stopPropagation(); prevStep(); };
 
-  // 3. 點擊波紋效果
+  // 3. 點擊波紋效果 (Ripple)
   document.addEventListener("click", e => {
     const r = document.createElement("div");
     r.className = "click-ripple";
@@ -399,7 +490,7 @@ function initGame() {
     setTimeout(() => r.remove(), 900);
   });
 
-  // 4. 鍵盤控制
+  // 4. 鍵盤控制 (Keyboard)
   document.addEventListener("keydown", e => {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code)) {
@@ -440,6 +531,7 @@ function initGame() {
     }
   });
 
+  // 啟動遊戲
   switchScene("scene1"); 
   nextStep();
 }
