@@ -186,11 +186,7 @@ function handleTransition(type, callback) {
  * 決定下一步要做什麼 (判斷分頁、轉場、執行)
  */
 function nextStep() {
-  // 1. 彈窗模式：優先關閉彈窗，不讀下一句
-  // (因為 click 事件會觸發 nextStep，這裡只需 return，讓 closePopup 透過 render 自動處理)
-  if (isPopupMode) return;
-
-  // 2. 檢查是否有剩餘的文字分頁
+  // 1. 檢查是否有剩餘的文字分頁
   if (state.textQueue.length) {
     const chunk = state.textQueue.shift();
     const last = state.backStack.length > 0 ? state.backStack.at(-1) : { stepData: {} };
@@ -209,13 +205,13 @@ function nextStep() {
     return;
   }
 
-  // 3. 劇本結束檢查
+  // 2. 劇本結束檢查
   if (state.index >= scenario.length) return;
 
-  // 4. 預讀下一行資料 (尚未 index++)
+  // 3. 預讀下一行資料 (尚未 index++)
   let raw = { ...scenario[state.index] };
 
-  // 5. 判斷是否需要轉場
+  // 4. 判斷是否需要轉場
   if (raw.transition) {
     handleTransition(raw.transition, () => {
       executeStep(); // 轉場黑屏中間執行
@@ -318,6 +314,7 @@ function render(step, instant = false) {
       
       return; // 彈窗模式下不處理後續對話框邏輯
   } else {
+      // 如果這一步沒有 popup，確保彈窗是關閉的
       closePopup();
   }
 
