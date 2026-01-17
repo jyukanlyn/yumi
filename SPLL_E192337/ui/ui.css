@@ -271,3 +271,66 @@ body,
 #name-plate {
     transition: background .6s ease, box-shadow .6s ease, color .6s ease;
 }
+
+/* ============================================================
+   🛑 Popup Window (彈窗系統)
+============================================================ */
+#popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6); /* 背景變暗 */
+    backdrop-filter: blur(5px);      /* 背景模糊 */
+    z-index: 2000;                   /* 比對話框更高 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+#popup-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#popup-box {
+    width: 60%;
+    max-width: 500px;
+    padding: 40px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(240,248,252,0.9));
+    border: 1px solid rgba(255,255,255,0.8);
+    border-radius: 20px;
+    box-shadow: 
+        0 20px 50px rgba(0,0,0,0.3),
+        inset 0 0 30px rgba(255,255,255,0.8);
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#popup-overlay.active #popup-box {
+    transform: scale(1);
+}
+
+#popup-content {
+    font-size: 1.4rem;
+    color: #4a6a75;
+    font-weight: bold;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+}
+
+#popup-hint {
+    font-size: 0.9rem;
+    color: #8faab5;
+    margin-top: 15px;
+    letter-spacing: 1px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
