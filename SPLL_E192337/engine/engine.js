@@ -265,9 +265,40 @@ function closePopup() {
     if (ui.dialogueBox) ui.dialogueBox.style.opacity = "1";
 }
 
-function changeBackground(bg) { 
-  if (!backgrounds[bg]) return; 
-  ui.gameScreen.style.backgroundImage = `url('${backgrounds[bg]}')`; 
+/* --- [功能] 切換背景 (支援單張與多張疊加) --- */
+function changeBackground(bg) {
+  // 如果 bg 是空的，什麼都不做
+  if (!bg) return;
+
+  let bgString = "";
+
+  // 情況 A：如果是陣列 (["layer1", "layer2"])
+  if (Array.isArray(bg)) {
+    // 把陣列裡的每個名字，轉換成 url('...')
+    const urls = bg.map(name => {
+      const path = backgrounds[name];
+      return path ? `url('${path}')` : null;
+    }).filter(u => u); // 過濾掉找不到圖片的
+
+    // CSS 語法是用逗號連接： url(a.jpg), url(b.jpg)
+    bgString = urls.join(", ");
+  } 
+  // 情況 B：如果是單純的字串 ("room")
+  else {
+    const path = backgrounds[bg];
+    if (path) bgString = `url('${path}')`;
+  }
+
+  // 套用到螢幕上
+  if (bgString) {
+    ui.gameScreen.style.backgroundImage = bgString;
+    
+    // 確保每一層背景都是滿版置中
+    // 如果你有兩層，CSS 會自動把 cover 套用到每一層
+    ui.gameScreen.style.backgroundSize = "cover";
+    ui.gameScreen.style.backgroundPosition = "center";
+    ui.gameScreen.style.backgroundRepeat = "no-repeat";
+  }
 }
 
 /* --- [Update Characters] 立繪更新邏輯 --- */
