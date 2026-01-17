@@ -4,7 +4,7 @@ import { state, backgrounds } from "./state.js";
 
 /* UI 元素對應 */
 const ui = {
-  themeLink: document.getElementById("scene-theme"), // ★ CSS 切換插槽
+  themeLink: document.getElementById("scene-theme"),
   gameScreen: document.getElementById("game-screen"),
   namePlate: document.getElementById("name-plate"),
   textBox: document.getElementById("dialogue-text"),
@@ -20,40 +20,39 @@ const ui = {
   eventImage: document.getElementById("event-image"),
 };
 
-/* --- [功能] 場景切換 (CSS 換皮) --- */
+/* --- [Typewriter] 打字機狀態 --- */
+let typingTimer = null;
+let isTyping = false;
+let fullTextCache = "";
+let typeIndex = 0;
+const TYPE_SPEED = 22;
+
+/* --- [功能] 場景切換 --- */
 let currentScene = null;
 
 export function switchScene(name) {
-  // 1. 切換 CSS 檔案 (href="ui/scene2.css")
   if (ui.themeLink) {
     ui.themeLink.href = `ui/${name}.css`;
   }
-
-  // 2. 更新容器 Class 並清除殘留背景
   if (ui.gameScreen) {
     if (currentScene) ui.gameScreen.classList.remove(currentScene);
     ui.gameScreen.classList.add(name);
-    
-    // ★★★ 清除 JS 留下的背景圖，讓 CSS 背景能顯示出來 ★★★
     ui.gameScreen.style.backgroundImage = ""; 
   }
-  
-  // 更新當前場景變數 (必須在 function 括號內)
   currentScene = name;
 }
 
-/* --- [助手] 文字分頁邏輯 (已修復高度計算) --- */
+/* --- [助手] 文字分頁邏輯 --- */
 function cleanPageStart(t) { return t.replace(/^[\n\r\s]+/, ""); }
 
 function splitTextByHeight(text, maxH) {
   const test = document.createElement("div");
   const style = getComputedStyle(ui.textBox);
   
-  // 建立測試容器，模擬真實環境寬度與樣式
   Object.assign(test.style, {
     position: "absolute",
     visibility: "hidden",
-    width: ui.textBox.clientWidth + "px", // 使用 clientWidth 扣除邊框
+    width: ui.textBox.clientWidth + "px",
     font: style.font,
     lineHeight: style.lineHeight,
     letterSpacing: style.letterSpacing,
@@ -66,13 +65,9 @@ function splitTextByHeight(text, maxH) {
   let pages = [], cur = "";
   
   for (let c of text) {
-    // 嘗試加入下一個字
     test.textContent = cur + c; 
-    
-    // 檢查高度是否爆掉
     if (test.scrollHeight > maxH) {
       if (cur.length === 0) {
-        // 防止死循環 (如果連一個字都放不下，強行放入)
         pages.push(c);
       } else {
         pages.push(cleanPageStart(cur));
@@ -82,10 +77,42 @@ function splitTextByHeight(text, maxH) {
       cur += c;
     }
   }
-  // 加入最後剩下的文字
   if (cur.trim()) pages.push(cleanPageStart(cur));
   document.body.removeChild(test);
   return pages;
+}
+
+/* --- [Typewriter] 打字機功能 (從 nextStep 移出來) --- */
+function startTypewriter(text) {
+  if (!ui.textBox) return;
+
+  clearInterval(typingTimer);
+  isTyping = true;
+  fullTextCache = text || "";
+  typeIndex = 0;
+  ui.textBox.textContent = "";
+
+  // 如果文字是空的，直接結束
+  if (!fullTextCache) {
+    isTyping = false;
+    return;
+  }
+
+  typingTimer = setInterval(() => {
+    if (typeIndex >= fullTextCache.length) {
+      clearInterval(typingTimer);
+      isTyping = false;
+      return;
+    }
+    ui.textBox.textContent += fullTextCache[typeIndex++];
+  }, TYPE_SPEED);
+}
+
+function skipTypewriter() {
+  if (!isTyping) return;
+  clearInterval(typingTimer);
+  ui.textBox.textContent = fullTextCache;
+  isTyping = false;
 }
 
 /* --- [核心] 下一步邏輯 --- */
@@ -95,19 +122,18 @@ function nextStep() {
   // 1. 檢查是否有剩餘的文字分頁
   if (state.textQueue.length) {
     const chunk = state.textQueue.shift();
-    const last = state.backStack.at(-1);
-    step = { ...last.stepData, text: chunk }; // 繼承上一頁的狀態，只換文字
+    // 確保 backStack 有資料才取用
+    const last = state.backStack.length > 0 ? state.backStack.at(-1) : { stepData: {} };
+    step = { ...last.stepData, text: chunk }; 
   } else {
     // 2. 讀取新的劇本行
     if (state.index >= scenario.length) return; // 劇本結束
     
     let raw = { ...scenario[state.index++] };
 
-    // 繼承說話者 (如果這行沒寫人名，預設是上一個人)
     if (!raw.speaker && state.lastSpeaker) raw.speaker = state.lastSpeaker;
     if (raw.speaker) state.lastSpeaker = raw.speaker;
 
-    // ★ 偵測場景切換 (如果劇本有寫 scene: "scene2")
     if (raw.scene) {
       switchScene(raw.scene);
     }
@@ -116,19 +142,14 @@ function nextStep() {
     if (raw.text) {
       const box = ui.textBox;
       if (box) {
-        // [修復] 動態計算可用高度
         const style = window.getComputedStyle(box);
         const paddingY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
-        
-        // 總高度 - Padding - 10px 緩衝
         let maxH = box.clientHeight - paddingY - 10;
-        
-        // [安全機制] 如果高度太小 (CSS未載入或隱藏)，給予預設值防止"一字一頁"
         if (maxH < 30) maxH = 200; 
 
         const pages = splitTextByHeight(raw.text, maxH);
-        raw.text = pages.shift(); // 取第一頁
-        state.textQueue = pages;  // 剩下的存起來
+        raw.text = pages.shift(); 
+        state.textQueue = pages;  
       }
     }
 
@@ -136,9 +157,10 @@ function nextStep() {
     step = raw;
   }
 
-  render(step);
+  // 渲染畫面 (正常播放模式)
+  render(step, false);
   
-  // 存入回放堆疊 (深拷貝 stepData 防止污染)
+  // 存入回放堆疊
   state.backStack.push({ 
     index: state.index, 
     textQueue: [...state.textQueue], 
@@ -147,25 +169,29 @@ function nextStep() {
 }
 
 function prevStep() {
+  clearInterval(typingTimer);
+  isTyping = false;
+
   if (state.backStack.length <= 1) return; // 已經在第一頁
-  state.backStack.pop();
-  const prev = state.backStack.at(-1);
+  state.backStack.pop(); // 移除當前頁
+  const prev = state.backStack.at(-1); // 讀取上一頁
   
   // 還原狀態
   state.index = prev.index;
   state.textQueue = [...prev.textQueue];
   
-  // 如果這一步有切換場景，倒退時也要切換回去 (檢查 scene 屬性)
   if (prev.stepData.scene) {
     switchScene(prev.stepData.scene);
   }
 
-  render(prev.stepData);
+  // 渲染畫面 (開啟 instant 模式，不跑打字機)
+  render(prev.stepData, true);
 }
 
 /* --- [Render] 渲染畫面 --- */
-function render(step) {
-  // 背景圖片 (如果還保留 changeBackground 功能)
+// 參數 instant: true 代表直接顯示文字 (回放時)，false 代表跑打字機
+function render(step, instant = false) {
+  // 背景圖片
   if (step.bg) changeBackground(step.bg);
 
   // 名字與對話框
@@ -178,7 +204,18 @@ function render(step) {
     }
   }
   
-  if (ui.textBox) ui.textBox.textContent = step.text || "";
+  // 文字顯示邏輯修正
+  if (ui.textBox) {
+    if (instant) {
+      // 回放時直接顯示
+      ui.textBox.textContent = step.text || "";
+      isTyping = false;
+      fullTextCache = step.text || ""; // 更新 cache 以防切換到點擊
+    } else {
+      // 正常播放跑打字機
+      startTypewriter(step.text || "");
+    }
+  }
   
   // 立繪更新
   updateCharacters(step);
@@ -186,13 +223,10 @@ function render(step) {
 
 function changeBackground(bg) { 
   if (!backgrounds[bg]) return; 
-  // 注意：這會改變 inline style，優先級高於 CSS class
-  // 如果這一行有執行，它會覆蓋掉 scene CSS 的背景
   ui.gameScreen.style.backgroundImage = `url('${backgrounds[bg]}')`; 
 }
 
 function updateCharacters(step) {
-  // 如果是旁白，隱藏立繪
   if (!step.speaker || step.speaker === "Narrator") {
     if (ui.avatarLeft) ui.avatarLeft.style.display = "none";
     if (ui.avatarRight) ui.avatarRight.style.display = "none";
@@ -210,7 +244,6 @@ function updateCharacters(step) {
   const target = pos === "right" ? ui.avatarRight : ui.avatarLeft;
   const other = pos === "right" ? ui.avatarLeft : ui.avatarRight;
 
-  // 隱藏非當前位置的立繪
   if (other) {
     other.style.display = "none";
     other.classList.remove("active");
@@ -218,12 +251,10 @@ function updateCharacters(step) {
 
   if (!target) return;
 
-  // 切換圖片並觸發轉場動畫
   if (!target.src.endsWith(src)) {
     target.src = src;
     target.style.display = "block";
     target.classList.remove("active");
-    // 使用 setTimeout 觸發 CSS transition
     setTimeout(() => target.classList.add("active"), 20);
   } else {
     target.style.display = "block";
@@ -245,22 +276,24 @@ function showLog() {
 
 /* --- [初始化] --- */
 function initGame() {
-  // 點擊螢幕推進劇情
   ui.gameScreen.addEventListener("click", e => {
-    // 排除點擊 UI 按鈕的情況
     if (e.target.closest("#log-window") || 
         e.target.closest("#chapter-menu") || 
         e.target.closest("button") || 
         e.target.closest("#back-btn")) return;
+
+    if (isTyping) {
+      skipTypewriter();
+      return;
+    }
+
     nextStep();
   });
 
-  // 按鈕事件綁定
   if (ui.logBtn) ui.logBtn.onclick = e => { e.stopPropagation(); showLog(); };
   if (ui.closeLogBtn) ui.closeLogBtn.onclick = e => { e.stopPropagation(); ui.logWindow.hidden = true; };
   if (ui.backBtn) ui.backBtn.onclick = e => { e.stopPropagation(); prevStep(); };
 
-  // 點擊波紋效果 (可選)
   document.addEventListener("click", e => {
     const r = document.createElement("div");
     r.className = "click-ripple";
@@ -270,7 +303,6 @@ function initGame() {
     setTimeout(() => r.remove(), 900);
   });
 
-  // 初始場景與開始
   switchScene("scene1"); 
   nextStep();
 }
