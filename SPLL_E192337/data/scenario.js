@@ -29,7 +29,6 @@ export const scenario = [
 
 { speaker: "灰野　雪之丞", text: ` 填寫報名訊息。` },
 
-
 { speaker: "Narrator ", text: ` 你很快收到報名訊息。` },
 { speaker: "", text: `【7.14 7 A.M. 東京港】` },
 
@@ -39,9 +38,7 @@ export const scenario = [
   transition: "fade"
 },
 
-{ speaker: "白井　波", text: `` },
-
-{ speaker: "Narrator", text: ` 回憶起17歲那年夏天，父母含淚對你說「明年就要嫁人了...」。` },
+{ speaker: "Narrator ", text: ` 回憶起17歲那年夏天，父母含淚對你說「明年就要嫁人了...」。` },
 
 { speaker: "", text: `那不是結婚，是作為神子的「嫁入儀式」。` },
 
@@ -111,7 +108,7 @@ export const scenario = [
 
 { speaker: "", text: `像是例行公事那樣地詢問。` },
 
-{ speaker: "白井　波", text: ` 他大概一輩子都學不來雪之丞這樣講話的方式。恰到好處的體貼跟關心，也從來不會踰矩或者冒犯，永遠都能融入群體之中，甚至能夠主導一切。` },
+{ speaker: "白井　波", text: ` 他大概一輩子都學不來雪之丞這樣講話的方式。恰到好處的體貼跟關心，也從來不會踰矩或者冒犯，永遠都能融入群體之中，主導著對話的走向。` },
 
 { speaker: "", text: `「吃飯跟睡覺這種事情、我又不是小孩子了，不用人陪也會記得要怎麼做。」` },
 
