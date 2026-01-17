@@ -25,7 +25,7 @@ let typingTimer = null;
 let isTyping = false;
 let fullTextCache = "";
 let typeIndex = 0;
-const TYPE_SPEED = 22;
+const TYPE_SPEED = 45;
 
 /* --- [功能] 場景切換 --- */
 let currentScene = null;
@@ -82,7 +82,7 @@ function splitTextByHeight(text, maxH) {
   return pages;
 }
 
-/* --- [Typewriter] 打字機功能 (從 nextStep 移出來) --- */
+/* --- [Typewriter] 打字機功能 --- */
 function startTypewriter(text) {
   if (!ui.textBox) return;
 
@@ -92,7 +92,6 @@ function startTypewriter(text) {
   typeIndex = 0;
   ui.textBox.textContent = "";
 
-  // 如果文字是空的，直接結束
   if (!fullTextCache) {
     isTyping = false;
     return;
@@ -122,20 +121,22 @@ function nextStep() {
   // 1. 檢查是否有剩餘的文字分頁
   if (state.textQueue.length) {
     const chunk = state.textQueue.shift();
-    // 確保 backStack 有資料才取用
     const last = state.backStack.length > 0 ? state.backStack.at(-1) : { stepData: {} };
     step = { ...last.stepData, text: chunk }; 
   } else {
     // 2. 讀取新的劇本行
-    if (state.index >= scenario.length) return; // 劇本結束
+    if (state.index >= scenario.length) return; 
     
     let raw = { ...scenario[state.index++] };
 
+    // 繼承說話者
     if (!raw.speaker && state.lastSpeaker) raw.speaker = state.lastSpeaker;
     if (raw.speaker) state.lastSpeaker = raw.speaker;
 
+    // ★★★ [功能 3 核心] 偵測場景切換並自動標記清空 ★★★
     if (raw.scene) {
       switchScene(raw.scene);
+      raw.clearChars = true; // 自動加入這個標記，讓 updateCharacters 知道要清場
     }
 
     // 處理文字分頁
@@ -157,10 +158,8 @@ function nextStep() {
     step = raw;
   }
 
-  // 渲染畫面 (正常播放模式)
   render(step, false);
   
-  // 存入回放堆疊
   state.backStack.push({ 
     index: state.index, 
     textQueue: [...state.textQueue], 
@@ -172,11 +171,10 @@ function prevStep() {
   clearInterval(typingTimer);
   isTyping = false;
 
-  if (state.backStack.length <= 1) return; // 已經在第一頁
-  state.backStack.pop(); // 移除當前頁
-  const prev = state.backStack.at(-1); // 讀取上一頁
+  if (state.backStack.length <= 1) return; 
+  state.backStack.pop(); 
+  const prev = state.backStack.at(-1); 
   
-  // 還原狀態
   state.index = prev.index;
   state.textQueue = [...prev.textQueue];
   
@@ -184,14 +182,11 @@ function prevStep() {
     switchScene(prev.stepData.scene);
   }
 
-  // 渲染畫面 (開啟 instant 模式，不跑打字機)
   render(prev.stepData, true);
 }
 
 /* --- [Render] 渲染畫面 --- */
-// 參數 instant: true 代表直接顯示文字 (回放時)，false 代表跑打字機
 function render(step, instant = false) {
-  // 背景圖片
   if (step.bg) changeBackground(step.bg);
 
   // 名字與對話框
@@ -204,20 +199,17 @@ function render(step, instant = false) {
     }
   }
   
-  // 文字顯示邏輯修正
+  // 文字顯示
   if (ui.textBox) {
     if (instant) {
-      // 回放時直接顯示
       ui.textBox.textContent = step.text || "";
       isTyping = false;
-      fullTextCache = step.text || ""; // 更新 cache 以防切換到點擊
+      fullTextCache = step.text || ""; 
     } else {
-      // 正常播放跑打字機
       startTypewriter(step.text || "");
     }
   }
   
-  // 立繪更新
   updateCharacters(step);
 }
 
@@ -226,7 +218,22 @@ function changeBackground(bg) {
   ui.gameScreen.style.backgroundImage = `url('${backgrounds[bg]}')`; 
 }
 
+/* --- [Update Characters] 立繪更新邏輯 --- */
 function updateCharacters(step) {
+  // ★★★ [功能 3 核心] 優先執行清空邏輯 ★★★
+  if (step.clearChars) {
+    if (ui.avatarLeft) {
+      ui.avatarLeft.style.display = "none";
+      ui.avatarLeft.classList.remove("active");
+    }
+    if (ui.avatarRight) {
+      ui.avatarRight.style.display = "none";
+      ui.avatarRight.classList.remove("active");
+    }
+    // 注意：這裡不 return，因為如果同一行有新角色要說話，下面會繼續執行把它畫出來
+  }
+
+  // 如果是旁白，隱藏立繪 (如果剛才沒清空的話)
   if (!step.speaker || step.speaker === "Narrator") {
     if (ui.avatarLeft) ui.avatarLeft.style.display = "none";
     if (ui.avatarRight) ui.avatarRight.style.display = "none";
@@ -244,6 +251,7 @@ function updateCharacters(step) {
   const target = pos === "right" ? ui.avatarRight : ui.avatarLeft;
   const other = pos === "right" ? ui.avatarLeft : ui.avatarRight;
 
+  // 隱藏非當前位置的立繪
   if (other) {
     other.style.display = "none";
     other.classList.remove("active");
@@ -251,12 +259,14 @@ function updateCharacters(step) {
 
   if (!target) return;
 
+  // 切換圖片
   if (!target.src.endsWith(src)) {
     target.src = src;
     target.style.display = "block";
     target.classList.remove("active");
     setTimeout(() => target.classList.add("active"), 20);
   } else {
+    // 如果剛剛因為 clearChars 隱藏了，這裡確保它重新顯示
     target.style.display = "block";
     if (!target.classList.contains("active")) target.classList.add("active");
   }
