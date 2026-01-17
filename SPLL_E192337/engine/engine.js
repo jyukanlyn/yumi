@@ -25,7 +25,7 @@ let typingTimer = null;
 let isTyping = false;
 let fullTextCache = "";
 let typeIndex = 0;
-const TYPE_SPEED = 45;
+const TYPE_SPEED = 22; // 打字速度
 
 /* --- [功能] 場景切換 --- */
 let currentScene = null;
@@ -133,10 +133,10 @@ function nextStep() {
     if (!raw.speaker && state.lastSpeaker) raw.speaker = state.lastSpeaker;
     if (raw.speaker) state.lastSpeaker = raw.speaker;
 
-    // ★★★ [功能 3 核心] 偵測場景切換並自動標記清空 ★★★
+    // 偵測場景切換並自動標記清空
     if (raw.scene) {
       switchScene(raw.scene);
-      raw.clearChars = true; // 自動加入這個標記，讓 updateCharacters 知道要清場
+      raw.clearChars = true; 
     }
 
     // 處理文字分頁
@@ -220,7 +220,7 @@ function changeBackground(bg) {
 
 /* --- [Update Characters] 立繪更新邏輯 --- */
 function updateCharacters(step) {
-  // ★★★ [功能 3 核心] 優先執行清空邏輯 ★★★
+  // 清空邏輯
   if (step.clearChars) {
     if (ui.avatarLeft) {
       ui.avatarLeft.style.display = "none";
@@ -230,10 +230,9 @@ function updateCharacters(step) {
       ui.avatarRight.style.display = "none";
       ui.avatarRight.classList.remove("active");
     }
-    // 注意：這裡不 return，因為如果同一行有新角色要說話，下面會繼續執行把它畫出來
   }
 
-  // 如果是旁白，隱藏立繪 (如果剛才沒清空的話)
+  // 旁白隱藏
   if (!step.speaker || step.speaker === "Narrator") {
     if (ui.avatarLeft) ui.avatarLeft.style.display = "none";
     if (ui.avatarRight) ui.avatarRight.style.display = "none";
@@ -251,7 +250,6 @@ function updateCharacters(step) {
   const target = pos === "right" ? ui.avatarRight : ui.avatarLeft;
   const other = pos === "right" ? ui.avatarLeft : ui.avatarRight;
 
-  // 隱藏非當前位置的立繪
   if (other) {
     other.style.display = "none";
     other.classList.remove("active");
@@ -259,14 +257,12 @@ function updateCharacters(step) {
 
   if (!target) return;
 
-  // 切換圖片
   if (!target.src.endsWith(src)) {
     target.src = src;
     target.style.display = "block";
     target.classList.remove("active");
     setTimeout(() => target.classList.add("active"), 20);
   } else {
-    // 如果剛剛因為 clearChars 隱藏了，這裡確保它重新顯示
     target.style.display = "block";
     if (!target.classList.contains("active")) target.classList.add("active");
   }
@@ -286,7 +282,9 @@ function showLog() {
 
 /* --- [初始化] --- */
 function initGame() {
+  // 1. 滑鼠/觸控點擊事件
   ui.gameScreen.addEventListener("click", e => {
+    // 防止點到 Log 視窗或按鈕時觸發
     if (e.target.closest("#log-window") || 
         e.target.closest("#chapter-menu") || 
         e.target.closest("button") || 
@@ -296,14 +294,15 @@ function initGame() {
       skipTypewriter();
       return;
     }
-
     nextStep();
   });
 
+  // 2. 按鈕事件
   if (ui.logBtn) ui.logBtn.onclick = e => { e.stopPropagation(); showLog(); };
   if (ui.closeLogBtn) ui.closeLogBtn.onclick = e => { e.stopPropagation(); ui.logWindow.hidden = true; };
   if (ui.backBtn) ui.backBtn.onclick = e => { e.stopPropagation(); prevStep(); };
 
+  // 3. 點擊波紋效果
   document.addEventListener("click", e => {
     const r = document.createElement("div");
     r.className = "click-ripple";
@@ -313,6 +312,54 @@ function initGame() {
     setTimeout(() => r.remove(), 900);
   });
 
+  // ★★★ 4. 新增：鍵盤控制 ★★★
+  document.addEventListener("keydown", e => {
+    // 避免影響輸入框 (如果未來有擴充)
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+
+    // 防止空白鍵和方向鍵滾動網頁
+    if (["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code)) {
+      e.preventDefault();
+    }
+
+    // A. 如果 Log 視窗開著，按 Esc 或 L 關閉
+    if (!ui.logWindow.hidden) {
+      if (e.code === "Escape" || e.code === "KeyL") {
+        ui.logWindow.hidden = true;
+      }
+      return; // 視窗開啟時，阻擋其他劇情操作
+    }
+
+    // B. 一般劇情操作
+    switch (e.code) {
+      case "Space":       // 空白鍵
+      case "Enter":       // Enter
+      case "ArrowRight":  // 右鍵
+      case "ArrowDown":   // 下鍵
+        if (isTyping) {
+          skipTypewriter();
+        } else {
+          nextStep();
+        }
+        break;
+
+      case "ArrowLeft":   // 左鍵
+      case "ArrowUp":     // 上鍵
+      case "Backspace":   // 倒退鍵
+        prevStep();
+        break;
+
+      case "KeyL":        // L 鍵
+        showLog();
+        break;
+        
+      case "Escape":      // Esc (目前用來關閉 Log，未來可擴充為選單)
+        // 如果有其他選單可以在這裡處理
+        break;
+    }
+  });
+
+  // 啟動遊戲
   switchScene("scene1"); 
   nextStep();
 }
