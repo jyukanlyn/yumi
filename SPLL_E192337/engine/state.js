@@ -19,6 +19,8 @@ export const backgrounds = {
   // 您的範例
   room: "assets/bg/ex.png",
   island: "assets/bg/island.jpg",
+  black: "assets/bg/black.jpg",
+
 
 
 };
