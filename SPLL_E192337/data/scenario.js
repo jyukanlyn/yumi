@@ -45,7 +45,7 @@ export const scenario = [
 { speaker: "灰野　雪之丞", text: ` 填寫報名訊息。` },
 
 { speaker: "Narrator ", text: ` 你很快收到報名訊息。` },
-{ speaker: "", text: `【7.14 7 A.M. 東京港】` },
+{ speaker: "", text: `【7.18 7 A.M. 東京港】` },
 
 {
   bg: "room",

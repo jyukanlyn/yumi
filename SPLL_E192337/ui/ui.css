@@ -304,7 +304,7 @@ body,
     box-shadow: 
         0 20px 50px rgba(0,0,0,0.3),
         inset 0 0 30px rgba(255,255,255,0.8);
-    text-align: center;
+    text-align: left;
     transform: scale(0.9);
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -314,10 +314,10 @@ body,
 }
 
 #popup-content {
-    font-size: 1.4rem;
+    font-size: 1.1rem;
     color: #4a6a75;
-    font-weight: bold;
-    line-height: 1.6;
+    font-weight: normal;
+    line-height: 1.1;
     margin-bottom: 20px;
     white-space: pre-wrap;
 }
