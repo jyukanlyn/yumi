@@ -20,6 +20,7 @@ export const backgrounds = {
   room: "assets/bg/ex.png",
   island: "assets/bg/island.jpg",
   black: "assets/bg/black.png",
+  blue: "assets/bg/blue.png",
 
 
 

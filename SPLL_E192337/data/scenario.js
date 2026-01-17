@@ -1,6 +1,6 @@
 export const scenario = [
         {
-    bg: ["black", "island"],
+    bg: ["blue", "island"],
     scene: "scene1",
     transition: "fade"
   },
